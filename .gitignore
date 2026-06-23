@@ -24,9 +24,7 @@ dist-ssr
 *.sw?
 
 # --- Configurações WUXIA-OPS ---
-# Arquivos de estudo de caso e arquitetura
+# Arquivos de estudo de caso temporários (mantemos ignorados)
 pasta_docs/
 CLI-gg/
 *.txt
-*.md
-!README.md
