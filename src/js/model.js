@@ -2,13 +2,13 @@
 export class AppModel {
   constructor() {
     this.storageKey = 'prancheta_digital_state';
-    
+
     // Default system configurations
     this.defaultSettings = {
       appTitle: 'Prancheta Digital Escola',
       logoUrl: '', // Base64 image or empty for default SVG
       customTabs: {
-        monitor: ['patio', 'chamados', 'a11y'],
+        monitor: ['patio', 'chamados', 'perfil'],
         secretaria: ['chamados', 'patio', 'cms', 'a11y'],
         diretor: ['dashboard', 'patio', 'chamados', 'cms', 'settings', 'a11y'],
         admin: ['dashboard', 'patio', 'chamados', 'cms', 'settings', 'a11y']
@@ -23,12 +23,14 @@ export class AppModel {
 
     // Default Occurrence Types
     this.defaultOccurrenceTypes = [
-      { id: '1', label: 'Falta de Uniforme (Blusa)', severity: 'warning' },
+      { id: '1', label: 'Falta de calçado (Chinelo)', severity: 'warning' },
       { id: '2', label: 'Uso de Celular', severity: 'warning' },
       { id: '3', label: 'Conversa em Excesso', severity: 'info' },
       { id: '4', label: 'Corrida / Acidente', severity: 'error' },
       { id: '5', label: 'Adorno Inadequado', severity: 'info' },
-      { id: '6', label: 'Atraso de Entrada', severity: 'info' }
+      { id: '6', label: 'Atraso de Entrada', severity: 'info' },
+      { id: '7', label: 'Falta de Uniforme (Calça)', severity: 'warning' },
+      { id: '8', label: 'Falta de Uniforme (Blusa)', severity: 'warning' },
     ];
 
     // Prepopulated Students
@@ -62,13 +64,34 @@ export class AppModel {
       { id: 'u1', name: 'Guilherme Puentes', role: 'admin', login: 'guilherme', password: '123', loginWindows: 'eti.guilherme', active: true },
       { id: 'u2', name: 'Ana Paula', role: 'monitor', login: 'anapaula', password: '123', loginWindows: 'esc.anapaula', active: true },
       { id: 'u3', name: 'Renata Costa', role: 'secretaria', login: 'renata', password: '123', loginWindows: 'esc.renata', active: true },
-      { id: 'u4', name: 'Marcelo Dias', role: 'diretor', login: 'marcelo', password: '123', loginWindows: 'esc.marcelo', active: true }
+      { id: 'u4', name: 'Marcelo Dias', role: 'diretor', login: 'marcelo', password: '123', loginWindows: 'esc.marcelo', active: true },
+      { id: 'u5', name: 'Terminal Sala', role: 'sala', login: 'sala', password: '123', loginWindows: 'esc.sala', active: true }
     ];
+
+    // Default Rooms (Salas 09 a 34 + others)
+    this.defaultRooms = [
+      { id: 'r_patio', name: 'Pátio Principal', type: 'Comum' },
+      { id: 'r_cantina', name: 'Cantina', type: 'Comum' },
+      { id: 'r_quadra', name: 'Quadra', type: 'Esportes' },
+      { id: 'r_biblio', name: 'Biblioteca', type: 'Comum' },
+      { id: 'r_banheiro_t1_f', name: 'Banheiro T1 F', type: 'Banheiro' },
+      { id: 'r_banheiro_t1_m', name: 'Banheiro T1 M', type: 'Banheiro' },
+      { id: 'r_banheiro_m2_f', name: 'Banheiro Mesanino 2 F', type: 'Banheiro' },
+      { id: 'r_banheiro_m2_m', name: 'Banheiro Mesanino 2 M', type: 'Banheiro' },
+      { id: 'r_escada_m', name: 'Escada Monitoria', type: 'Corredor' },
+      { id: 'r_escada_c', name: 'Escada Conservação', type: 'Corredor' }
+    ];
+    // Populate Salas 09 to 34
+    for (let i = 9; i <= 34; i++) {
+      const numStr = i.toString().padStart(2, '0');
+      this.defaultRooms.push({ id: `r_sala_${numStr}`, name: `Sala ${numStr}`, type: 'Sala de Aula' });
+    }
 
     // Initialize state
     this.state = {
       users: [],
       students: [],
+      rooms: [],
       occurrenceTypes: [],
       occurrences: [],
       tickets: [],
@@ -117,6 +140,7 @@ export class AppModel {
   initializeDefaultState() {
     this.state.users = [...this.defaultUsers];
     this.state.students = [...this.defaultStudents];
+    this.state.rooms = [...this.defaultRooms];
     this.state.occurrenceTypes = [...this.defaultOccurrenceTypes];
     this.state.settings = { ...this.defaultSettings };
     this.state.occurrences = [];
@@ -186,7 +210,7 @@ export class AppModel {
   // Students filtering and autocomplete (typeahead)
   searchStudents(query) {
     if (!query || query.length < 2) return [];
-    
+
     const term = this.normalizeString(query);
     return this.state.students.filter(student => {
       const fullName = `${student.firstName} ${student.lastName}`;
@@ -204,13 +228,13 @@ export class AppModel {
   checkRecurrence(studentId, motive) {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    
+
     // Find matching occurrences
     const occurrences = this.state.occurrences.filter(occ => {
       const occDate = new Date(occ.date);
-      return occ.studentId === studentId && 
-             occDate >= thirtyDaysAgo && 
-             (!motive || occ.reasons.includes(motive));
+      return occ.studentId === studentId &&
+        occDate >= thirtyDaysAgo &&
+        (!motive || occ.reasons.includes(motive));
     });
 
     return {
@@ -325,12 +349,12 @@ export class AppModel {
       if (classMatch) {
         const num = parseInt(classMatch[1]);
         const letter = classMatch[2].toUpperCase();
-        
+
         let searchClass = `${num.toString().padStart(2, '0')} ${letter}`;
         if (letter === 'A' || letter === 'B' || letter === 'C' || letter === 'D') {
           searchClass = `${num.toString().padStart(2, '0')} M${letter}`;
         }
-        
+
         const foundClass = this.state.students.some(s => s.classId.replace(/\s+/g, '') === searchClass.replace(/\s+/g, ''));
         if (foundClass) {
           detectedClass = this.state.students.find(s => s.classId.replace(/\s+/g, '') === searchClass.replace(/\s+/g, '')).classId;
@@ -464,7 +488,12 @@ export class AppModel {
     const list = this.state[type];
     if (!list) return;
 
-    data.id = (type === 'students' ? 's' : type === 'users' ? 'u' : 't') + Date.now();
+    let prefix = 't';
+    if (type === 'students') prefix = 's';
+    else if (type === 'users') prefix = 'u';
+    else if (type === 'rooms') prefix = 'r';
+
+    data.id = prefix + Date.now();
     list.push(data);
     this.notify();
   }
@@ -493,10 +522,10 @@ export class AppModel {
     try {
       const lines = csvText.split('\n');
       const newStudents = [];
-      
+
       lines.forEach((line, index) => {
         if (index === 0 || !line.trim()) return; // skip header or empty lines
-        
+
         // Split by comma or semicolon
         const columns = line.split(/[;,]/);
         if (columns.length >= 3) {
@@ -504,7 +533,7 @@ export class AppModel {
           const lastName = columns[1].trim();
           const classId = columns[2].trim();
           const id = 's-imported-' + index + '-' + Date.now();
-          
+
           if (firstName && classId) {
             newStudents.push({
               id,

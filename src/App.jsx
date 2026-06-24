@@ -9,6 +9,7 @@ import Chamados from './pages/Chamados.jsx';
 import Diretoria from './pages/Diretoria.jsx';
 import CMS from './pages/CMS.jsx';
 import Settings from './pages/Settings.jsx';
+import TerminalSala from './pages/TerminalSala.jsx';
 
 // Route guard: redirects to /login if not authenticated
 function ProtectedRoute({ children }) {
@@ -19,8 +20,11 @@ function ProtectedRoute({ children }) {
 
 // Route guard: redirects away from login if already authenticated
 function PublicRoute({ children }) {
-  const { isAuthenticated } = useAuth();
-  if (isAuthenticated) return <Navigate to="/monitor" replace />;
+  const { isAuthenticated, currentUser } = useAuth();
+  if (isAuthenticated) {
+    if (currentUser?.role === 'sala') return <Navigate to="/terminal" replace />;
+    return <Navigate to="/monitor" replace />;
+  }
   return children;
 }
 
@@ -47,6 +51,9 @@ function App() {
             <Route path="/cms" element={<CMS />} />
             <Route path="/settings" element={<Settings />} />
           </Route>
+
+          {/* Protected: Kiosk Terminal (No Shell) */}
+          <Route path="/terminal" element={<ProtectedRoute><TerminalSala /></ProtectedRoute>} />
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/login" replace />} />

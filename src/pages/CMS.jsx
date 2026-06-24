@@ -26,10 +26,9 @@ import {
   EditRegular,
   DeleteRegular,
   SearchRegular,
-  PersonRegular,
-  TagRegular,
   PeopleRegular,
   ClipboardTaskListLtrRegular,
+  BuildingRegular,
 } from '@fluentui/react-icons';
 
 const useStyles = makeStyles({
@@ -93,6 +92,7 @@ const useStyles = makeStyles({
 const TABS = [
   { value: 'students', label: 'Alunos', icon: <PersonRegular /> },
   { value: 'users', label: 'Usuários', icon: <PeopleRegular /> },
+  { value: 'rooms', label: 'Locais', icon: <BuildingRegular /> },
   { value: 'occurrenceTypes', label: 'Tipos Ocorrência', icon: <TagRegular /> },
   { value: 'occurrences', label: 'Histórico', icon: <ClipboardTaskListLtrRegular /> },
 ];
@@ -256,6 +256,37 @@ export default function CMS() {
     );
   };
 
+  const renderRoomsTable = () => {
+    const data = filterData(state.rooms || []);
+    return (
+      <div className={styles.responsive}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th className={styles.th}>Nome do Local</th>
+              <th className={styles.th}>Tipo</th>
+              <th className={styles.th} style={{ width: '100px' }}>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map(r => (
+              <tr key={r.id}>
+                <td className={styles.td}>{r.name}</td>
+                <td className={styles.td}><Badge appearance="tint" color="brand">{r.type}</Badge></td>
+                <td className={styles.td}>
+                  <div className={styles.actions}>
+                    <Button appearance="subtle" size="small" icon={<EditRegular />} onClick={() => openEditDialog(r)} aria-label="Editar" />
+                    <Button appearance="subtle" size="small" icon={<DeleteRegular />} onClick={() => handleDelete(r.id)} aria-label="Excluir" />
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
   const renderOccurrencesTable = () => {
     const data = filterData(state.occurrences || []).slice().reverse().slice(0, 50);
     return (
@@ -295,7 +326,7 @@ export default function CMS() {
       <Dialog open={dialogOpen} onOpenChange={(e, data) => setDialogOpen(data.open)}>
         <DialogSurface>
           <DialogBody>
-            <DialogTitle>{editItem ? 'Editar' : 'Adicionar'} {activeTab === 'students' ? 'Aluno' : activeTab === 'users' ? 'Usuário' : 'Tipo'}</DialogTitle>
+            <DialogTitle>{editItem ? 'Editar' : 'Adicionar'} {activeTab === 'students' ? 'Aluno' : activeTab === 'users' ? 'Usuário' : activeTab === 'rooms' ? 'Local' : 'Tipo'}</DialogTitle>
             <DialogContent>
               <div className={styles.formGrid} style={{ marginTop: '16px' }}>
                 {activeTab === 'students' && (
@@ -359,6 +390,25 @@ export default function CMS() {
                     </div>
                   </>
                 )}
+                {activeTab === 'rooms' && (
+                  <>
+                    <div className={styles.formGroup}>
+                      <Text weight="semibold" size={200}>Nome do Local/Sala</Text>
+                      <Input value={formData.name || ''} onChange={(e, d) => updateField('name', d.value)} />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <Text weight="semibold" size={200}>Tipo de Local</Text>
+                      <Select value={formData.type || 'Sala de Aula'} onChange={(e, d) => updateField('type', d.value)}>
+                        <option value="Sala de Aula">Sala de Aula</option>
+                        <option value="Comum">Comum (Pátio, etc)</option>
+                        <option value="Corredor">Corredor</option>
+                        <option value="Banheiro">Banheiro</option>
+                        <option value="Esportes">Esportes/Quadra</option>
+                        <option value="Administrativo">Administrativo</option>
+                      </Select>
+                    </div>
+                  </>
+                )}
               </div>
             </DialogContent>
             <DialogActions>
@@ -402,6 +452,7 @@ export default function CMS() {
 
       {activeTab === 'students' && renderStudentsTable()}
       {activeTab === 'users' && renderUsersTable()}
+      {activeTab === 'rooms' && renderRoomsTable()}
       {activeTab === 'occurrenceTypes' && renderTypesTable()}
       {activeTab === 'occurrences' && renderOccurrencesTable()}
 

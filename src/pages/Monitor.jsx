@@ -10,6 +10,7 @@ import {
   Button,
   Badge,
   Divider,
+  Textarea,
 } from '@fluentui/react-components';
 import {
   SearchRegular,
@@ -136,6 +137,46 @@ const useStyles = makeStyles({
       transform: 'translateY(0)',
     },
   },
+  chipContainer: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '8px',
+    marginBottom: '16px',
+  },
+  locationChip: {
+    minHeight: '48px', // A11y target size
+    padding: '8px 16px',
+    borderRadius: '24px',
+    border: '1px solid var(--border-color-strong)',
+    backgroundColor: 'var(--bg-card)',
+    color: 'var(--color-text)',
+    cursor: 'pointer',
+    fontWeight: '600',
+    transition: 'all 0.2s',
+    ':hover': {
+      backgroundColor: 'var(--bg-sidebar-hover)',
+    },
+  },
+  locationChipSelected: {
+    backgroundColor: 'var(--color-brand)',
+    color: '#fff',
+    borderColor: 'var(--color-brand)',
+    ':hover': {
+      backgroundColor: 'var(--color-brand-hover)',
+    },
+  },
+  stickyFooter: {
+    position: 'sticky',
+    bottom: '0',
+    padding: '16px',
+    backgroundColor: 'var(--bg-app)',
+    borderTop: '1px solid var(--border-color)',
+    zIndex: 20,
+    display: 'flex',
+    justifyContent: 'center',
+    boxShadow: '0 -4px 16px rgba(0,0,0,0.1)',
+    margin: '20px -20px -20px -20px',
+  },
   successCard: {
     padding: '20px',
     textAlign: 'center',
@@ -154,6 +195,11 @@ export default function Monitor() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [recurrence, setRecurrence] = useState({ isRecurrent: false, count: 0 });
+  
+  // New Form State
+  const [selectedLocation, setSelectedLocation] = useState('');
+  const [selectedMotive, setSelectedMotive] = useState('');
+  const [observation, setObservation] = useState('');
   const [occurrenceLogged, setOccurrenceLogged] = useState(null);
 
   const ctaLabel = state?.settings?.patioCta?.label || 'FALTA DE UNIFORME';
@@ -178,28 +224,42 @@ export default function Monitor() {
     setSelectedStudent(student);
     setSearchQuery('');
     setOccurrenceLogged(null);
+    setObservation('');
+    setSelectedMotive('');
+    setSelectedLocation('');
     const rec = checkRecurrence(student.id, ctaLabel);
     setRecurrence(rec);
   };
 
-  const handleCTA = (motive) => {
-    if (!selectedStudent) return;
-    const occ = addOccurrence(selectedStudent.id, [motive], `Registrado via CTA rápido do pátio`, 'Pátio / Recreio');
-    setOccurrenceLogged(occ);
+  const handleMotiveClick = (motive) => {
+    setSelectedMotive(motive);
   };
 
   const handleCustomCTA = () => {
-    const motive = prompt('Digite o motivo da ocorrência:');
-    if (motive && motive.trim()) {
-      handleCTA(motive.trim());
-    }
+    setSelectedMotive('Outro / Observação');
+  };
+
+  const handleConfirm = () => {
+    if (!selectedStudent || !selectedMotive || !selectedLocation) return;
+    const finalDetails = observation ? `Obs: ${observation}` : 'Registrado via Tablet (Pátio)';
+    const occ = addOccurrence(selectedStudent.id, [selectedMotive], finalDetails, selectedLocation);
+    setOccurrenceLogged(occ);
   };
 
   const handleReset = () => {
     setSelectedStudent(null);
     setOccurrenceLogged(null);
     setRecurrence({ isRecurrent: false, count: 0 });
+    setSelectedMotive('');
+    setSelectedLocation('');
+    setObservation('');
   };
+
+  // Derive common locations (not classrooms)
+  const commonLocations = useMemo(() => {
+    if (!state.rooms) return [];
+    return state.rooms.filter(r => r.type !== 'Sala de Aula').slice(0, 8);
+  }, [state.rooms]);
 
   const photoUrl = selectedStudent
     ? `https://api.dicebear.com/8.x/initials/svg?seed=${selectedStudent.firstName}+${selectedStudent.lastName}&backgroundColor=0078d4`
@@ -279,45 +339,100 @@ export default function Monitor() {
             />
           </Card>
 
-          {/* ─── CTAs ─── */}
-          <div className={styles.ctaGrid}>
-            <button
-              className={styles.ctaButton}
-              style={{
-                backgroundColor: ctaBg,
-                color: ctaText,
-                gridColumn: '1 / -1',
-              }}
-              onClick={() => handleCTA(ctaLabel)}
-              id="btn-patio-primary-cta"
-            >
-              {ctaLabel}
-            </button>
-            {secondaryMotives.map(motive => (
+          {/* ─── Locations ─── */}
+          <div style={{ marginTop: '8px' }}>
+            <Text weight="semibold" style={{ marginBottom: '8px', display: 'block' }}>1. Localização Exata</Text>
+            <div className={styles.chipContainer} role="radiogroup" aria-label="Localização">
+              {commonLocations.map(loc => (
+                <button
+                  key={loc.id}
+                  className={`${styles.locationChip} ${selectedLocation === loc.name ? styles.locationChipSelected : ''}`}
+                  onClick={() => setSelectedLocation(loc.name)}
+                  role="radio"
+                  aria-checked={selectedLocation === loc.name}
+                >
+                  {loc.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* ─── CTAs (Motives) ─── */}
+          <div>
+            <Text weight="semibold" style={{ marginBottom: '8px', display: 'block' }}>2. Motivo</Text>
+            <div className={styles.ctaGrid}>
               <button
-                key={motive}
                 className={styles.ctaButton}
                 style={{
-                  backgroundColor: 'var(--bg-card)',
-                  color: 'var(--color-text)',
-                  border: '1px solid var(--border-color-strong)',
+                  backgroundColor: selectedMotive === ctaLabel ? 'var(--color-brand)' : ctaBg,
+                  color: selectedMotive === ctaLabel ? '#fff' : ctaText,
+                  gridColumn: '1 / -1',
+                  opacity: selectedMotive && selectedMotive !== ctaLabel ? 0.6 : 1,
                 }}
-                onClick={() => handleCTA(motive)}
+                onClick={() => handleMotiveClick(ctaLabel)}
+                id="btn-patio-primary-cta"
+                aria-pressed={selectedMotive === ctaLabel}
               >
-                {motive}
+                {ctaLabel}
               </button>
-            ))}
-            <button
-              className={styles.ctaButton}
-              style={{
-                backgroundColor: 'var(--color-text-secondary)',
-                color: '#fff',
-              }}
-              onClick={handleCustomCTA}
-              id="btn-patio-other-cta"
+              {secondaryMotives.map(motive => (
+                <button
+                  key={motive}
+                  className={styles.ctaButton}
+                  style={{
+                    backgroundColor: selectedMotive === motive ? 'var(--color-brand)' : 'var(--bg-card)',
+                    color: selectedMotive === motive ? '#fff' : 'var(--color-text)',
+                    borderColor: selectedMotive === motive ? 'var(--color-brand)' : 'var(--border-color-strong)',
+                  }}
+                  onClick={() => handleMotiveClick(motive)}
+                  aria-pressed={selectedMotive === motive}
+                >
+                  {motive}
+                </button>
+              ))}
+              <button
+                className={styles.ctaButton}
+                style={{
+                  backgroundColor: selectedMotive === 'Outro / Observação' ? 'var(--color-brand)' : 'var(--color-text-secondary)',
+                  color: '#fff',
+                }}
+                onClick={handleCustomCTA}
+                id="btn-patio-other-cta"
+              >
+                Outro motivo...
+              </button>
+            </div>
+          </div>
+
+          {/* ─── Observation & Sticky Confirm ─── */}
+          {selectedMotive && (
+            <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <Text weight="semibold">3. Observações (Opcional)</Text>
+              <Textarea 
+                placeholder="Descreva detalhes da ocorrência (ex: aluno se recusou a obedecer, estava com amigo de outra turma)..."
+                size="large"
+                resize="vertical"
+                rows={3}
+                value={observation}
+                onChange={(e, data) => setObservation(data.value)}
+                onFocus={(e) => {
+                  setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+                }}
+              />
+            </div>
+          )}
+
+          {/* Sticky Footer for confirmation */}
+          <div className={styles.stickyFooter}>
+            <Button 
+              appearance="primary" 
+              size="large" 
+              style={{ width: '100%', minHeight: '54px', fontSize: '16px' }}
+              disabled={!selectedLocation || !selectedMotive}
+              onClick={handleConfirm}
             >
-              Outro motivo...
-            </button>
+              Confirmar Ocorrência
+            </Button>
           </div>
         </>
       )}

@@ -8,6 +8,8 @@ import {
   Card,
   Badge,
   Divider,
+  TabList,
+  Tab,
 } from '@fluentui/react-components';
 import {
   DataBarVerticalRegular,
@@ -15,6 +17,9 @@ import {
   TagRegular,
   AlertUrgentRegular,
   PersonRegular,
+  LocationRegular,
+  WeatherSunnyRegular,
+  WeatherPartlyCloudyDayRegular,
 } from '@fluentui/react-icons';
 
 const useStyles = makeStyles({
@@ -69,9 +74,14 @@ const useStyles = makeStyles({
   widgetHeader: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
+    justifyContent: 'space-between',
     paddingBottom: '10px',
     borderBottom: '1px solid var(--border-color)',
+  },
+  headerTitle: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
   },
   listItem: {
     display: 'flex',
@@ -88,6 +98,25 @@ const useStyles = makeStyles({
     width: '100%',
     height: '100%',
   },
+  heatmapItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    padding: '8px 0',
+  },
+  heatmapBarWrapper: {
+    flex: 1,
+    height: '12px',
+    backgroundColor: 'var(--bg-sidebar)',
+    borderRadius: '6px',
+    overflow: 'hidden',
+  },
+  heatmapBar: {
+    height: '100%',
+    backgroundColor: 'var(--color-danger)', // Red for heatmap
+    borderRadius: '6px',
+    transition: 'width 0.3s ease',
+  },
 });
 
 // Severity color mapping
@@ -100,6 +129,7 @@ const SEVERITY_COLORS = {
 export default function Dashboard() {
   const styles = useStyles();
   const { state } = useAuth();
+  const [shift, setShift] = React.useState('todos'); // 'todos', 'manha', 'tarde'
 
   const stats = useMemo(() => {
     const now = new Date();
@@ -107,39 +137,37 @@ export default function Dashboard() {
     const weekAgo = new Date(today);
     weekAgo.setDate(weekAgo.getDate() - 7);
 
-    const totalOcc = state.occurrences.length;
-    const todayOcc = state.occurrences.filter(o => new Date(o.date) >= today).length;
-    const weekOcc = state.occurrences.filter(o => new Date(o.date) >= weekAgo).length;
+    // Filter occurrences based on shift
+    const filteredOccurrences = state.occurrences.filter(occ => {
+      if (shift === 'todos') return true;
+      const h = new Date(occ.date).getHours();
+      if (shift === 'manha') return h >= 6 && h < 13;
+      if (shift === 'tarde') return h >= 13 && h < 19;
+      return false; // Night occurrences ignored in these filters
+    });
+
+    const totalOcc = filteredOccurrences.length;
+    const todayOcc = filteredOccurrences.filter(o => new Date(o.date) >= today).length;
+    const weekOcc = filteredOccurrences.filter(o => new Date(o.date) >= weekAgo).length;
     const openTickets = state.tickets.filter(t => t.status === 'Aberto').length;
     const totalStudents = state.students.length;
 
-    // Category breakdown
-    const categoryMap = {};
-    state.occurrences.forEach(occ => {
-      occ.reasons.forEach(r => {
-        categoryMap[r] = (categoryMap[r] || 0) + 1;
-      });
+    // Heatmap (Locations)
+    const locationMap = {};
+    filteredOccurrences.forEach(occ => {
+      const loc = occ.location || 'Não informado';
+      locationMap[loc] = (locationMap[loc] || 0) + 1;
     });
-    const categories = Object.entries(categoryMap)
+    const locations = Object.entries(locationMap)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 6);
-
-    // Hourly distribution
-    const hourMap = {};
-    state.occurrences.forEach(occ => {
-      const h = new Date(occ.date).getHours();
-      const label = `${h}h`;
-      hourMap[label] = (hourMap[label] || 0) + 1;
-    });
-    const hours = Object.entries(hourMap).sort((a, b) => {
-      return parseInt(a[0]) - parseInt(b[0]);
-    });
+      .slice(0, 5);
+    const maxLocationCount = locations.length > 0 ? locations[0][1] : 1;
 
     // Recurrent students (3+ in 30 days)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const studentOccCount = {};
-    state.occurrences
+    filteredOccurrences
       .filter(o => new Date(o.date) >= thirtyDaysAgo)
       .forEach(o => {
         studentOccCount[o.studentId] = (studentOccCount[o.studentId] || 0) + 1;
@@ -153,24 +181,21 @@ export default function Dashboard() {
       })
       .filter(item => item.student);
 
-    // Monitor activity
-    const monitorMap = {};
-    state.occurrences.forEach(occ => {
-      if (occ.monitorName) {
-        monitorMap[occ.monitorName] = (monitorMap[occ.monitorName] || 0) + 1;
-      }
-    });
-    const monitors = Object.entries(monitorMap)
-      .sort((a, b) => b[1] - a[1]);
-
-    return { totalOcc, todayOcc, weekOcc, openTickets, totalStudents, categories, hours, recurrentStudents, monitors };
-  }, [state.occurrences, state.tickets, state.students]);
+    return { totalOcc, todayOcc, weekOcc, openTickets, totalStudents, locations, maxLocationCount, recurrentStudents };
+  }, [state.occurrences, state.tickets, state.students, shift]);
 
   const maxHourVal = Math.max(...(stats.hours.map(h => h[1])), 1);
 
   return (
     <div className={styles.container}>
-      <Title2>Dashboard</Title2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+        <Title2>Dashboard Executivo</Title2>
+        <TabList selectedValue={shift} onTabSelect={(e, data) => setShift(data.value)}>
+          <Tab value="todos">Tudo</Tab>
+          <Tab value="manha" icon={<WeatherSunnyRegular />}>Manhã</Tab>
+          <Tab value="tarde" icon={<WeatherPartlyCloudyDayRegular />}>Tarde</Tab>
+        </TabList>
+      </div>
 
       {/* ─── Metrics ─── */}
       <div className={styles.metricsRow}>
@@ -200,69 +225,43 @@ export default function Dashboard() {
 
       {/* ─── Widgets ─── */}
       <div className={styles.widgetGrid}>
-        {/* Hourly Chart */}
-        <Card className={styles.widget} appearance="outline">
-          <div className={styles.widgetHeader}>
-            <ClockRegular />
-            <Title3>Distribuição por Horário</Title3>
-          </div>
-          <div className={styles.chartContainer}>
-            <svg className={styles.barChart} viewBox="0 0 400 200" preserveAspectRatio="none">
-              {stats.hours.map(([label, count], i) => {
-                const barWidth = Math.max(30, 400 / (stats.hours.length || 1) - 8);
-                const barHeight = (count / maxHourVal) * 160;
-                const x = i * (barWidth + 8) + 4;
-                return (
-                  <g key={label}>
-                    <rect
-                      x={x}
-                      y={200 - barHeight - 20}
-                      width={barWidth}
-                      height={barHeight}
-                      fill="var(--color-brand)"
-                      rx="3"
-                      style={{ transition: 'height 0.3s ease' }}
-                    >
-                      <title>{label}: {count} ocorrências</title>
-                    </rect>
-                    <text
-                      x={x + barWidth / 2}
-                      y={195}
-                      textAnchor="middle"
-                      fontSize="10"
-                      fill="var(--color-text-secondary)"
-                    >
-                      {label}
-                    </text>
-                  </g>
-                );
-              })}
-            </svg>
-          </div>
-        </Card>
 
-        {/* Categories */}
+        {/* Heatmap (Áreas Quentes) */}
         <Card className={styles.widget} appearance="outline">
           <div className={styles.widgetHeader}>
-            <TagRegular />
-            <Title3>Por Categoria</Title3>
-          </div>
-          {stats.categories.map(([label, count]) => (
-            <div key={label} className={styles.listItem}>
-              <Text>{label}</Text>
-              <Badge appearance="filled" color="informative">{count}</Badge>
+            <div className={styles.headerTitle}>
+              <LocationRegular />
+              <Title3>Áreas Quentes (Heatmap)</Title3>
             </div>
-          ))}
-          {stats.categories.length === 0 && (
-            <Text style={{ color: 'var(--color-text-secondary)' }}>Nenhuma ocorrência registrada.</Text>
-          )}
+            <Badge appearance="tint" color="danger">Risco</Badge>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {stats.locations.map(([label, count]) => {
+              const widthPct = Math.max(10, (count / stats.maxLocationCount) * 100);
+              return (
+                <div key={label} className={styles.heatmapItem}>
+                  <Text style={{ width: '120px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</Text>
+                  <div className={styles.heatmapBarWrapper}>
+                    <div className={styles.heatmapBar} style={{ width: `${widthPct}%`, opacity: Math.max(0.4, count / stats.maxLocationCount) }} />
+                  </div>
+                  <Text weight="semibold" style={{ width: '30px', textAlign: 'right' }}>{count}</Text>
+                </div>
+              );
+            })}
+            {stats.locations.length === 0 && (
+              <Text style={{ color: 'var(--color-text-secondary)' }}>Sem dados de localização no período.</Text>
+            )}
+          </div>
         </Card>
 
-        {/* Recurrent Students */}
+        {/* Recurrent Students (Top Offenders) */}
         <Card className={styles.widget} appearance="outline">
           <div className={styles.widgetHeader}>
-            <AlertUrgentRegular />
-            <Title3>Alunos Recorrentes</Title3>
+            <div className={styles.headerTitle}>
+              <AlertUrgentRegular />
+              <Title3>Alunos em Risco</Title3>
+            </div>
+            <Badge appearance="tint" color="warning">Atenção</Badge>
           </div>
           {stats.recurrentStudents.map(({ student, count }) => (
             <div key={student.id} className={styles.listItem}>
@@ -275,23 +274,6 @@ export default function Dashboard() {
           ))}
           {stats.recurrentStudents.length === 0 && (
             <Text style={{ color: 'var(--color-text-secondary)' }}>Nenhum aluno recorrente.</Text>
-          )}
-        </Card>
-
-        {/* Monitor Activity */}
-        <Card className={styles.widget} appearance="outline">
-          <div className={styles.widgetHeader}>
-            <PersonRegular />
-            <Title3>Atividade por Monitor</Title3>
-          </div>
-          {stats.monitors.map(([name, count]) => (
-            <div key={name} className={styles.listItem}>
-              <Text>{name}</Text>
-              <Badge appearance="filled" color="brand">{count}</Badge>
-            </div>
-          ))}
-          {stats.monitors.length === 0 && (
-            <Text style={{ color: 'var(--color-text-secondary)' }}>Sem registros.</Text>
           )}
         </Card>
       </div>
