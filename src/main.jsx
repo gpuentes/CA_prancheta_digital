@@ -2,11 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { FluentProvider, webLightTheme, webDarkTheme } from '@fluentui/react-components';
 import App from './App.jsx';
-import { initAnalytics } from './modules/analytics';
 import './style.css';
-
-// Inicializa a auditoria silenciosa (Microsoft Clarity, Hotjar, etc) se as variáveis de ambiente existirem
-initAnalytics();
 
 // Determine initial theme
 const savedTheme = localStorage.getItem('theme');
