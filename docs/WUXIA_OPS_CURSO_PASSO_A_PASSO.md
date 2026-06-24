@@ -35,3 +35,36 @@ Adotamos a cultura de manter a documentação colada ao código fonte (`/docs/`)
 1. `product/prd.md` -> A essência do produto.
 2. `ux-ui/styleguide.md` -> Regras visuais (Fluent 2).
 3. `architecture/sdd.md` -> Diagramas e stack.
+
+## Módulo 6: Configuração de Domínio Personalizado (Cloudflare & GitHub Pages)
+Para publicar a aplicação em produção sob um domínio corporativo personalizado (como `prancheta.online.des.br`):
+
+1. **Configuração de DNS no Cloudflare (ou outro provedor):**
+   - Crie 4 registros do tipo **A** apontando para os IPs oficiais do GitHub Pages:
+     - `185.199.108.153`
+     - `185.199.109.153`
+     - `185.199.110.153`
+     - `185.199.111.153`
+   - Opcionalmente, você pode adicionar registros **AAAA** (IPv6):
+     - `2606:50c0:8000::153`
+     - `2606:50c0:8001::153`
+     - `2606:50c0:8002::153`
+     - `2606:50c0:8003::153`
+   
+   ![Apontamento DNS no Cloudflare](images/cloudflare_dns.png)
+   
+   ![IPs de Acesso do GitHub Pages](images/github_ips.png)
+
+2. **Configuração de Domínio Personalizado no GitHub Pages:**
+   - Acesse as **Settings** do seu repositório no GitHub.
+   - Vá na seção **Pages** na barra lateral.
+   - Sob **Custom domain**, insira o seu domínio completo (ex: `prancheta.online.des.br`) e clique em **Save**.
+   - O GitHub fará uma verificação de DNS. Quando bem-sucedida, o site estará ativo.
+   - *Nota:* Ative a opção **Enforce HTTPS** assim que o certificado SSL for provisionado pelo GitHub (pode demorar alguns minutos após a propagação do DNS).
+
+   ![Configuração do Custom Domain no GitHub Pages](images/github_pages_config.png)
+
+3. **Links de Referência:**
+   - [Documentação do GitHub: Configurar um domínio personalizado](https://docs.github.com/pt/pages/configuring-a-custom-domain-for-your-github-pages-site)
+   - [Documentação do GitHub: Gerenciar um domínio personalizado](https://docs.github.com/pt/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site)
+
