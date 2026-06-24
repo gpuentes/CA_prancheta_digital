@@ -88,20 +88,29 @@ const useStyles = makeStyles({
     },
   },
   btnNormal: {
-    backgroundColor: 'var(--color-neutral-bg-3)', // #f3f2f1 mapped
+    backgroundColor: 'var(--bg-sidebar)',
+    border: '1px solid var(--border-color)',
     color: 'var(--color-text)',
+    ':hover': {
+      backgroundColor: 'var(--bg-sidebar-hover)',
+    },
   },
   btnUrgente: {
     backgroundColor: 'var(--color-warning-bg)',
     border: '2px solid var(--color-warning)',
     color: 'var(--color-warning)',
+    ':hover': {
+      backgroundColor: 'var(--color-warning)',
+      color: 'var(--color-text-on-brand)',
+    },
   },
   btnGrave: {
-    backgroundColor: 'var(--color-danger-bg)',
-    color: 'var(--color-danger)',
+    backgroundColor: 'var(--color-error-bg)',
+    border: '2px solid var(--color-error)',
+    color: 'var(--color-error)',
     ':hover': {
-      backgroundColor: 'var(--color-danger)',
-      color: 'var(--color-neutral-fg-inverted)',
+      backgroundColor: 'var(--color-error)',
+      color: 'var(--color-text-on-brand)',
     },
   },
   iconWrapper: {

@@ -145,6 +145,17 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html {
+  zoom: var(--font-scale);
+}
+
+@-moz-document url-prefix() {
+  html {
+    transform: scale(var(--font-scale));
+    transform-origin: top left;
+  }
+}
+
 body {
   background-color: var(--bg-app);
   color: var(--color-text);

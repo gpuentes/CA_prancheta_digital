@@ -27,6 +27,8 @@ import {
   DeleteRegular,
   SearchRegular,
   PeopleRegular,
+  PersonRegular,
+  TagRegular,
   ClipboardTaskListLtrRegular,
   BuildingRegular,
 } from '@fluentui/react-icons';
