@@ -1,70 +1,98 @@
-# Curso WUXIA Ops: Criação de um PWA Enterprise do Zero à Nuvem
+# 🎓 Curso WUXIA Ops: Engenharia e Design de um PWA Enterprise
 
-Este material é um registro passo a passo ("Documentation as Code") das decisões e implementações do projeto **CA Prancheta Digital**. Ele serve como um guia entregável para novos membros da equipe e como material oficial do curso WUXIA Ops.
+Bem-vindo ao treinamento premium da WUXIA Ops. Este não é apenas um tutorial de código; é um guia estratégico ("Documentation as Code") de como construímos a **CA Prancheta Digital** utilizando Inteligência Artificial de alto nível, Design Centrado no Usuário e Engenharia Escalável. 
+
+Nosso objetivo é que você entenda o **"Porquê"** de cada decisão (UX, Arquitetura, Negócios) antes de aprender o **"Como"** (Código, Deploy).
 
 ---
 
-## Módulo 1: Setup da Inteligência e Arquitetura Inicial
-Nesta fase, utilizamos um Agente IA Sênior (Gepto) para atuar como Product Manager e Tech Lead.
+## 🧠 Módulo 1: Strategy & Setup (A Fundação WUXIA)
+Antes de escrever qualquer linha de código, estruturamos a inteligência do projeto utilizando nosso Agente IA Sênior (Gepto).
 
-1. **Definição da Stack (WUXIA-OPS):**
-   - Frontend: Vite + React + Fluent UI 2.
-   - Backend Futuro: PostgreSQL + PGVector.
-   - Orquestração: n8n + Automação de WhatsApp.
+**O Porquê:** Projetos falham por falta de clareza, não por falta de código. Um ambiente limpo e blindado garante segurança da propriedade intelectual e direção técnica clara.
 
-2. **Criação do Repositório e Higiene:**
-   - Inicializamos o repositório Git.
-   - Configuramos o `.gitignore` para blindar arquivos de rascunho de IA (`*.txt`, `pasta_docs/`) evitando o vazamento de propriedade intelectual antes da fase "Documentation as Code".
+**O Como:**
+1. **Definição da Stack:** Frontend React + Vite com Fluent UI 2 (foco em acessibilidade cognitiva). Backend futuro via PostgreSQL + PGVector para buscas semânticas, e n8n para orquestração.
+2. **Higiene do Repositório:** Configuração agressiva do `.gitignore` bloqueando vazamento de rascunhos de IA (`*.txt`, `pasta_docs/`).
 
-## Módulo 2: O Frontend com Fluent UI 2
-1. O ambiente base foi gerado com `npm run dev` usando **Vite**.
-2. Foi diagnosticado um erro de dependência do React, e nós resolvemos usando `npm install -D @vitejs/plugin-react --legacy-peer-deps` para forçar a compatibilidade de bibliotecas corporativas.
+✅ **Checklist de Validação UX/Arquitetura:**
+- [ ] A stack escolhida resolve a dor do usuário com o menor custo cognitivo?
+- [ ] O repositório está seguro contra vazamentos de prompts e rascunhos de IA?
 
-## Módulo 3: Infraestrutura, Deploy e Automação GitHub Actions
-Para garantir integração contínua sem depender de setups locais complexos:
-1. Criamos um workflow do GitHub Actions em `.github/workflows/deploy.yml`.
-2. O workflow escuta a branch `main`, instala as dependências via Node 20, compila o código e envia automaticamente a pasta `dist` para o **GitHub Pages**.
+---
 
-## Módulo 4: Estratégia de Auditoria e "Heatmaps" (Poder do Super Admin)
-No nível Enterprise, gestores precisam de dados não verbais:
-1. Em vez de criar um sistema complexo do zero, planejamos a injeção do **Microsoft Clarity / PostHog**.
-2. Ele roda no background invisível para o usuário final, mas grava sessões completas da tela para o UX e Super Admin estudarem gargalos de uso dos inspetores.
+## 🎨 Módulo 2: O Frontend Premium com Fluent UI 2
+Nós não fazemos apenas telas; nós construímos "Experiências". O frontend deve refletir estabilidade corporativa.
 
-## Módulo 5: Documentation as Code (DaC)
-Adotamos a cultura de manter a documentação colada ao código fonte (`/docs/`), espelhando métodos ágeis (DDD, BDD, TDD).
-1. `product/prd.md` -> A essência do produto.
-2. `ux-ui/styleguide.md` -> Regras visuais (Fluent 2).
-3. `architecture/sdd.md` -> Diagramas e stack.
+**O Porquê:** Professores e gestores já estão exaustos. Nossa interface deve usar os modelos mentais do pacote Office que eles já conhecem. O Fluent UI entrega essa familiaridade somada à acessibilidade nativa (WCAG).
 
-## Módulo 6: Configuração de Domínio Personalizado (Cloudflare & GitHub Pages)
-Para publicar a aplicação em produção sob um domínio corporativo personalizado (como `prancheta.online.des.br`):
+**O Como:**
+1. Geração do ambiente base via **Vite**.
+2. Resolução tática de dependências corporativas forçando compatibilidade segura (`npm install -D @vitejs/plugin-react --legacy-peer-deps`).
 
-1. **Configuração de DNS no Cloudflare (ou outro provedor):**
-   - Crie 4 registros do tipo **A** apontando para os IPs oficiais do GitHub Pages:
-     - `185.199.108.153`
-     - `185.199.109.153`
-     - `185.199.110.153`
-     - `185.199.111.153`
-   - Opcionalmente, você pode adicionar registros **AAAA** (IPv6):
-     - `2606:50c0:8000::153`
-     - `2606:50c0:8001::153`
-     - `2606:50c0:8002::153`
-     - `2606:50c0:8003::153`
-   
-   ![Apontamento DNS no Cloudflare](images/cloudflare_dns.png)
-   
-   ![IPs de Acesso do GitHub Pages](images/github_ips.png)
+✅ **Checklist de Validação UX/Arquitetura:**
+- [ ] Os tokens de design (cores, tipografia) garantem contraste adequado para baixa visão?
+- [ ] A interface responde instantaneamente (feedback visual) às ações do usuário?
 
-2. **Configuração de Domínio Personalizado no GitHub Pages:**
-   - Acesse as **Settings** do seu repositório no GitHub.
-   - Vá na seção **Pages** na barra lateral.
-   - Sob **Custom domain**, insira o seu domínio completo (ex: `prancheta.online.des.br`) e clique em **Save**.
-   - O GitHub fará uma verificação de DNS. Quando bem-sucedida, o site estará ativo.
-   - *Nota:* Ative a opção **Enforce HTTPS** assim que o certificado SSL for provisionado pelo GitHub (pode demorar alguns minutos após a propagação do DNS).
+---
 
-   ![Configuração do Custom Domain no GitHub Pages](images/github_pages_config.png)
+## 🚀 Módulo 3: Edge DevOps e CI/CD
+Automação é a alma da WUXIA-Ops. Código parado não gera valor.
 
-3. **Links de Referência:**
-   - [Documentação do GitHub: Configurar um domínio personalizado](https://docs.github.com/pt/pages/configuring-a-custom-domain-for-your-github-pages-site)
-   - [Documentação do GitHub: Gerenciar um domínio personalizado](https://docs.github.com/pt/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site)
+**O Porquê:** Remover o erro humano do processo de deploy. A equipe deve focar em gerar valor de negócio (features/design), enquanto robôs cuidam de publicar a aplicação com segurança.
 
+**O Como:**
+1. Criação do pipeline no GitHub Actions (`.github/workflows/deploy.yml`).
+2. Compilação automática e envio da pasta `dist` para o GitHub Pages a cada push na `main`.
+
+✅ **Checklist de Validação UX/Arquitetura:**
+- [ ] O build quebra se houver erros críticos de linting/acessibilidade?
+- [ ] O tempo de deploy do CI/CD está abaixo de 3 minutos para garantir agilidade?
+
+---
+
+## 👁️ Módulo 4: Observabilidade e Auditoria de UX
+Achismo mata produtos. Precisamos de dados comportamentais.
+
+**O Porquê:** A diretoria exige relatórios, mas o Design exige ver como o usuário real clica, rola e se frustra na tela. Mapas de calor são cruciais para melhoria contínua.
+
+**O Como:**
+1. Injeção invisível do **Microsoft Clarity / PostHog**.
+2. Gravação de sessões sem impactar a performance (carregamento assíncrono do script), municiando o UX Designer de insights.
+
+✅ **Checklist de Validação UX/Arquitetura:**
+- [ ] O script de analytics está bloqueando a thread principal de renderização? (Deve ser não-bloqueante).
+- [ ] Os dados de identificação pessoal (PII) dos alunos estão sendo ocultados corretamente na gravação?
+
+---
+
+## 📚 Módulo 5: Documentation as Code (DaC)
+Documentação solta no Google Drive fica obsoleta. Documentação premium vive no repositório.
+
+**O Porquê:** Manter a fonte da verdade única. Se o código evolui, a documentação evolui no mesmo Commit.
+
+**O Como:**
+Organizamos a pasta `/docs/` como o cérebro ágil do projeto:
+1. `product/prd.md` -> A essência e escopo.
+2. `ux-ui/styleguide.md` -> Regras do Design System.
+3. `architecture/sdd.md` -> Decisões técnicas.
+
+✅ **Checklist de Validação UX/Arquitetura:**
+- [ ] O PRD reflete a última iteração da interface entregue?
+- [ ] Um novo desenvolvedor consegue entender a stack apenas lendo os arquivos locais?
+
+---
+
+## 🌍 Módulo 6: Go-to-Market (Domínio Customizado e Cloudflare)
+A entrega final precisa transpirar autoridade e credibilidade.
+
+**O Porquê:** `projeto.github.io` é para testes. `prancheta.online.des.br` é para clientes que pagam caro por soluções Enterprise.
+
+**O Como:**
+1. Configuração de DNS no **Cloudflare** via registros A e AAAA para os IPs do GitHub.
+2. Ativação de Proxy Reverso e proteção Anti-DDoS.
+3. Vinculação do Custom Domain no GitHub Pages com SSL Forçado (HTTPS).
+
+✅ **Checklist de Validação UX/Arquitetura:**
+- [ ] O cadeado SSL está verde e válido em todos os navegadores?
+- [ ] A rotação de rotas do PWA funciona corretamente se o usuário acessar via subdiretórios?
