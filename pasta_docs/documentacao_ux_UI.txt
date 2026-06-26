@@ -1,0 +1,112 @@
+Fala, Gestor! Gepto na escuta.
+
+Para garantirmos que o nosso contexto esteja blindado e rico antes de você abrir o Antigravity hoje e acionar o servidor MCP do Figma, compilei o Documento Completo de UX/UI.
+
+Este material consolida as heurísticas, o guia de estilos do Fluent 2, as matrizes de responsividade e as especificações técnicas de plataforma (incluindo as limitações da Apple). Copie este documento para o seu repositório de documentação (docs/ux-architecture.md).
+
+🎨 Documentação de UX & UI: Prancheta Digital & Campainha
+Projeto: Sistema Modular de Gestão Escolar (PWA)
+Localidade Base: São José dos Campos, SP
+Design System Base: Microsoft Fluent 2
+Foco Metodológico: Acesso Baseado em Papéis (RBAC), FDD, A11y.
+
+1. Princípios de Design e Carga Cognitiva
+Como a operação ocorre em ambientes de alta distração (pátio de recreio) e sob pressão de tempo (horário de pico das 06:45am), a interface foi desenhada para ter Carga Cognitiva Mínima.
+
+Time-to-Task: O tempo entre a identificação visual de uma infração e o envio do registro no tablet não deve ultrapassar 8 segundos.
+
+Redundância A11y (Daltonismo): Nenhuma informação de status (SLA) dependerá exclusivamente de cor. A interface cruzará Cor + Ícone + Texto (ex: 🔴 + Ícone de Alerta + "Crítico").
+
+Prevenção de Erros (Poka-Yoke): O uso de Busca Preditiva (Typeahead) associada à foto oficial do aluno elimina a possibilidade de notificar o aluno homônimo errado.
+
+2. Style Guide & Design Tokens (Fluent 2)
+A padronização visual garante consistência e acelera o desenvolvimento do Front-end.
+
+2.1. Tipografia (Segoe UI / System UI)
+Utilizaremos a escala tipográfica do Fluent 2 para garantir legibilidade máxima em dispositivos móveis sob luz solar (pátio).
+
+Display/Title (H1): 28px, Semibold (Foco: Títulos de Dashboards).
+
+Body/Base: 16px, Regular (Foco: Leitura de ocorrências e nomes).
+
+Caption/Helper: 12px, Regular (Foco: Legendas de A11y e timestamps).
+
+2.2. Paleta de Cores e Semântica de Ação
+Brand Primary: Azul Escuro (#0F4C81) - Uso: Headers, navegação primária.
+
+Background Surface: Cinza Claro Fluent (#F3F2F1) - Uso: Fundo do PWA, reduz o cansaço visual.
+
+Ação Positiva / Conclusão: Verde Ação (#107C41) - Uso: Botões "Gerar Chamado", "Concluir Registro".
+
+Ação de Atenção (SLA Médio): Amarelo/Laranja (#F39C12) - Uso: Alertas de infrações recorrentes.
+
+Ação Crítica (SLA Estourado): Vermelho (#C0392B) - Uso: Chamados na fila há mais de 10 minutos.
+
+2.3. Espaçamento e Touch Targets
+A grade base é de 8px (8, 16, 24, 32...).
+
+Regra de Ouro Mobile: Todo elemento interativo (botões, switches taxonômicos, itens da lista de busca preditiva) deve ter um touch target mínimo de 48x48 pixels para evitar toques acidentais durante a caminhada do monitor.
+
+3. Matriz de Breakpoints e Responsividade
+O sistema atende a três frentes com hardwares completamente distintos. O design é fluido (Liquid Design), adaptando-se via Media Queries.
+
+Mobile / Tablet Portrait (Até 768px):
+
+Ator: Monitor de Pátio (iPad/Safari).
+
+Layout: Foco em listas verticais (Fila de Chamados), botões expansíveis na largura total (100% width) e navegação via Bottom Tab Bar (para facilitar o alcance do polegar).
+
+Tablet Landscape / Desktop Padrão (769px a 1440px):
+
+Ator: Secretária / Moderador.
+
+Layout: Tela dividida (Split View). Lado esquerdo para inserção do texto bruto (NLP); lado direito para o Preview dinâmico do formulário preenchido.
+
+Large Desktop / Monitor Stand (Acima de 1440px):
+
+Ator: Vice-Diretor / Diretor.
+
+Layout: Grid de Dashboards expandido (Data Viz Fluent). Múltiplos gráficos renderizados simultaneamente sem necessidade de scroll vertical pesado.
+
+4. Especificações de Plataforma: O "Fator Apple/Safari"
+Devido ao uso de iPads no pátio, o desenvolvimento do front-end deve tratar as restrições rigorosas da engine WebKit da Apple de forma nativa.
+
+Notificações Push & WebSocket: O Safari móvel restringe WebSockets em segundo plano.
+
+UX Fix: Uma barra superior fixa convidará o usuário a instalar o PWA: "Adicione à Tela de Início para receber alertas em tempo real".
+
+Feedback Tátil (Haptics): A API navigator.vibrate é ignorada pelo iOS.
+
+UX Fix: O sistema não dependerá de vibração no iOS. O Fallback será um aviso sonoro customizado (um arquivo .mp3 leve, estilo "campainha de recepção" ou "ping" institucional) associado a um toast notification visível.
+
+Teclado Virtual (On-screen Keyboard): O input da busca preditiva precisa forçar o layout sem zoom automático na tela.
+
+UX Fix: Todo input de texto terá font-size: 16px no mínimo (isso impede o Safari de dar zoom automático ao clicar no campo) e inputmode="text" configurado adequadamente.
+
+5. Arquitetura de Informação Visual (Wireframe Blueprint)
+Estrutura macro das Views no padrão MVC.
+
+View 1: Painel de Moderação (Secretaria)
+Header: Logo do Colégio, Nome do Usuário logado (via SSO), Botão de Contraste (A11y).
+
+Main Left: Área de texto grande (Text Area) com placeholder "Cole o histórico do aluno aqui...". Botão secundário "Processar".
+
+Main Right: Card flutuante simulando o formulário em papel. Componentes de Checkbox do Fluent 2 mapeados. Botão CTA Primário "Gerar Chamado" fixado no rodapé do card.
+
+View 2: Pátio e Fila Móvel (Monitor)
+Header: Fixo no topo. Abas Rápidas: [Fila de Chamados] | [Nova Ocorrência].
+
+Body (Tab Fila): Cards empilhados. Cada card exibe: Tempo decorrido (em minutos), Destino, Ícone de SLA (Verde/Amarelo/Vermelho), e botão "Aceitar".
+
+Body (Tab Nova Ocorrência): Campo de busca no topo. Ao digitar "Gab", abre um Dropdown Menu flutuante exibindo [Foto] Gabriel Oliveira - 08 MB.
+
+Bottom Sheet (Modal de Ação): Após selecionar o aluno, sobe uma tela modal com Switches para as infrações (Uniforme, Adorno, Corredor) e o botão verde final "Concluir Registro".
+
+View 3: Dashboard Disciplinar (Diretoria)
+Header: Filtros Dinâmicos Globais (Data, Turno, Turma).
+
+Top Row (KPIs): Cards de métricas rápidas (Total do Dia, Infrações Críticas, Frequência).
+
+Middle Row (Gráficos): Gráfico de Barras laterais (Horários de Pico) e Gráfico de Pizza/Rosca (Top 5 Motivos).
+
+Bottom Row (Tabela Auditável): Tabela de dados brutos (Data Grid) com as colunas: Aluno, Ocorrência, Monitor Responsável, Status. Botão "Exportar Relatório" posicionado no canto superior direito do grid.

@@ -29,7 +29,7 @@ dist-ssr
 *.sw?
 
 # --- Configurações WUXIA-OPS ---
-# Arquivos de estudo de caso temporários (mantemos ignorados)
-pasta_docs/
+# Arquivos de estudo de caso temporários (AGORA PERMITIDOS PARA BACKUP)
+# pasta_docs/
 CLI-gg/
-*.txt
+# *.txt

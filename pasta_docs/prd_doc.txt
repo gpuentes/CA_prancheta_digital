@@ -1,0 +1,47 @@
+📑 DOCUMENTAÇÃO CONSOLIDADA DE PROJETO (BASE MASTER)Diretório Raiz: C:\WS-agentes_IA\CA_prancheta_digitalTech Product Lead & Systems Analyst: Guilherme PuentesData de Consolidação: 17 de junho de 2026Padrão Arquitetural: MVC Satélite ModularDesign System Guideline: Microsoft Fluent 2 Design System1. INTRODUÇÃO & JORNADA (ESTUDO DE CASO)O ecossistema "Prancheta Digital & Campainha Mobile" foi concebido para digitalizar e otimizar o fluxo operacional disciplinar e de segurança de instituições de ensino. A aplicação atua como um módulo complementar satélite, conectando-se ao ERP/CRM legado do colégio por meio de requisições assíncronas, garantindo que o processo analógico seja extinto sem gerar impactos de performance ou custos de substituição na infraestrutura atual.O projeto é documentado e exposto em portfólio através de três grandes propósitos:Estudo de Caso de UX/UI: Focado nas dores operacionais diárias de mais de 14 monitores de pátio e secretárias, aplicando heurísticas de usabilidade, refatoração de microcopy e acessibilidade.Caso de Sucesso de IA Co-creativa: Engenharia de prompt aplicada para transformar taxonomias de pátio complexas (regras de uniforme, adornos, infrações gerais) em regras lógicas de software.Cultura DevOps em Produção: Desenvolvimento estruturado em formato PWA (Progressive Web App) leve, responsivo e executado diretamente no navegador de múltiplos dispositivos.2. MATRIZ DE PAPÉIS & PERMISSÕES (RBAC)O ecossistema gerencia as permissões de acesso com base no perfil do operador autenticado:Super Admin (TI / DevOps / Design): Acesso total à infraestrutura, tracking de performance de tela, volumetria de interações e auditoria transparente correlacionada ao login do Windows do terminal corporativo.Diretor / Vice-Diretor: Acesso restrito de gestão à View de gráficos analíticos de volumetria consolidada, mapas de calor comportamentais e exportação gerencial para tomadas de decisão pedagógicas.Disciplinar: Acesso ao CRUD completo de ocorrências, injeção dinâmica de novos campos no formulário para novos padrões de infrações e exportação de relatórios customizados.Monitor / Professor: Rota mobile simplificada para o Módulo Prancheta (registro rápido com busca preditiva, switches taxonômicos e input de descrição aberta por voz) e atendimento em tempo real do Módulo Campainha.3. ARQUITETURA DE SOFTWARE & REQUISITOS (PRD)3.2 Requisitos Funcionais (RF)RF01 – Autenticação com Identidade Herdada (SSO): O sistema não possui banco de senhas paralelo; ele valida os tokens de acesso de forma integrada às credenciais de rede do ERP/CRM já existente no colégio.RF02 – Painel de Gestão (CMS) & CRUDs: Telas de administração para o cadastro de alunos, turmas, usuários e parâmetros operacionais (numeração de salas restrita de 09 a 35).RF03 – Dashboard Customizável: Gráficos interativos utilizando componentes Fluent 2 Data Visualization, editáveis e reposicionáveis na tela pelo administrador.RF04 – Configurações White Label: Upload de logotipo institucional, alteração do nome de exibição do sistema no navegador e gerenciamento de visibilidade dinâmica de abas e menus laterais.RF05 – Módulo Prancheta (Busca Preditiva Contextual): Campo de entrada inteligente (Typeahead). Ao digitar 3 letras do nome, o sistema filtra o banco de dados baseado no turno/período escolar vigente na hora do chamado, otimizando o tempo de resposta do servidor para sub-200ms. A lista exibe o formato [Primeiro Nome] + [Último Sobrenome] - [Série], acompanhada da Foto do Aluno e de uma flag visual destacada caso o estudante possua histórico de reincidência comportamental nos últimos 30 dias (⚠️ Recorrente).RF05.1 – Tipificação Taxonômica de Ocorrências:Uniforme: Falta de calça, blusa, camiseta ou descaracterizado.Adornos: Brincos, piercing (orelha, nariz, outros locais), cor das unhas (esmalte, unha em gel).Eletrônicos: Celular, fones de ouvido, outros aparelhos não específicos.Infrações Gerais: Campo de texto livre habilitado para entrada por voz via Web Speech API.RF06 – Módulo Campainha (Chamados Real-time): Sincronização automática contínua de demandas criadas pela secretaria enviadas via WebSockets (sem necessidade de dar F5 ou reload na página). A tela exibe controle de SLA visual por cores (Verde $\le$ 5min, Amarelo 5-10min, Vermelho > 10min) com identificadores visuais redundantes para daltonismo (A11y). O dispositivo móvel executa aviso sonoro curto e aciona a API de vibração nativa do navegador (navigator.vibrate) ao entrar novas requisições.RF07 – Exportação com Trilha de Auditoria: Geração de arquivos estruturados (PDF/Excel). O relatório final obrigatoriamente contém a assinatura digital com o nome do monitor ativo que efetuou o registro em campo, garantindo governança e transparência escolar.3.3 Requisitos Não-Funcionais (RNF)RNF01 – Padrão de Componentização UI: Implementação rigorosa do Microsoft Fluent 2 Design System nas camadas visuais da View.RNF02 – Compatibilidade PWA Progressiva: Manifesto e Service Worker configurados para habilitar instalação nativa e suporte a armazenamento de rascunhos off-line no pátio (IndexedDB).RNF03 – Otimização Responsiva para Toque: Todos os botões e componentes acionáveis em campo devem possuir uma zona de toque (touch target) de no mínimo 48px x 48px para uso em movimento.4. MODELAGEM DE DADOS RELACIONAL (DER)Estrutura relacional do banco de dados satélite isolado para garantir integridade e auditoria de logs de telemetria sem onerar o banco central do colégio:Snippet de códigoerDiagram
+    USUARIOS {
+        int id_usuario PK
+        string nome
+        string role
+        string login_windows
+        boolean ativo
+    }
+    ALUNOS {
+        int id_aluno PK
+        string nome
+        string serie
+        string sala
+        string periodo
+        string foto_url
+    }
+    OCORRENCIAS {
+        int id_ocorrencia PK
+        int id_aluno FK
+        int id_criador FK
+        timestamp data_hora
+        string localizacao
+        text descricao_audio_txt
+        string status
+        string gravidade
+    }
+    DETALHES_INFRACOES {
+        int id_detalhe PK
+        int id_ocorrencia FK
+        string categoria
+        string subcategoria
+    }
+    LOGS_TELEMETRIA {
+        int id_log PK
+        int id_usuario FK
+        string login_windows_detectado
+        int tempo_uso_segundos
+        int qtd_interacoes
+        text device_info
+        date data_referencia
+    }
+
+    USUARIOS ||--o{ OCORRENCIAS : "registra"
+    USUARIOS ||--o{ LOGS_TELEMETRIA : "audita"
+    ALUNOS ||--o{ OCORRENCIAS : "recebe"
+    OCORRENCIAS ||--|{ DETALHES_INFRACOES : "contem"
+5. REGRAS DE GOVERNANÇA, SEGURANÇA E LGPD (ART. 14)Proteção e Minimização de Dados de Menores: As fotos dos alunos são exibidas temporariamente nas Views por chamadas assíncronas cliente-servidor. O PWA é estritamente proibido de salvar imagens no cache rígido permanente do dispositivo ou expor rotas de download local.Segurança em Terminais Compartilhados: Tokens JWT de autenticação baseados no login herdado devem residir exclusivamente em SessionStorage. O Service Worker rodará scripts para encerrar e limpar os estados locais da sessão após 10 minutos de inatividade do tablet ou PC.Auditoria DevOps de Login de Rede: A camada Controller intercepta o login de rede corporativa do Windows (login_windows_detectado), populando as tabelas de telemetria para fins de análise estatística de desempenho do sistema, sem expor dados comportamentais sensíveis do usuário.6. COMPATIBILIDADE DE ARQUIVOS NO GOOGLE DRIVEMapeamento semântico de mídias geradas no FigJam organizadas na pasta Prancheta_digital_encaminhamento_aluno:image_792b47.png: Diagrama macro unificando os fluxos interconectados das raias da Secretaria, do Monitor e da Diretoria.image_78a389.png: Roteiro estrutural de referência de Heurística de Experiência do Usuário e legenda geométrica de formas do FigJam.image_78b292.png: Renderização oficial do Fluxo A (Mecanismo do "Colar Inteligente" e triagem Regex automatizada na secretaria).image_6eb680.png: Renderização oficial do Fluxo B (Jornada mobile reativa e proativa via tablets de monitoria de pátio).image_6ea03b.png: Renderização oficial do Fluxo C (Painel de controle executivo transformando dados operacionais em Business Intelligence).7. ORQUESTRAÇÃO DE TIMES DE AGENTES (YML CONFIG COPIED)O workspace é monitorado sob a seguinte árvore de papéis de agentes de inteligência artificial configurados para a esteira de desenvolvimento:@pm / @po: Dono do backlog técnico e da spec viva do PRD.@analyst: Engenheiro de requisitos e responsável por edge cases e datasets de teste contextuais.@architect: Arquiteto de software, responsável pelas decisões de WebSockets e isolamento do banco MVC PostgreSQL.@sm: Sprint manager, gerencia tarefas, dependências de código e a meta de touch targets mínimos de 48px.@dev: Desenvolvedor, escreve código limpo, linter e garante a não persistência de dados em LocalStorage.@devops: Automatiza pipelines de CI/CD, cofres de segredos e o Service Worker com IndexedDB off-line.@qa (@bmad-qa): Analista de testes, responsável por validar heurísticas de daltonismo, cross-browser e relatórios de Findings.O contrato conceitual e a documentação mestre para o diretório C:\WS-agentes_IA\CA_prancheta_digital estão blindados, salvos e prontos para o início imediato do desenvolvimento.
