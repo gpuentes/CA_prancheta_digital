@@ -33,3 +33,11 @@ dist-ssr
 # pasta_docs/
 CLI-gg/
 # *.txt
+
+# --- Configuração local de agentes IA (NUNCA versionar) ---
+.agents/
+.gemini/
+CLAUDE.md
+
+# --- Documentação interna / manuais operacionais (sensíveis) ---
+docs/MANUAL_CONSOLIDADO_WUXIA_OPS.md
