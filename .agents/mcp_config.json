@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "ca-prancheta-postgres": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "--connection-string",
+        "postgresql://postgres_admin:secure_password_here@localhost:5432/ca_prancheta_satelite"
+      ]
+    }
+  }
+}
