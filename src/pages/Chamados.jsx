@@ -1,6 +1,26 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { triggerAllAlerts } from '../hooks/useAudio.js';
+
+// Live SLA tick — forces re-render every second for active tickets
+function useLiveTick() {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick(t => t + 1), 1000);
+    return () => clearInterval(id);
+  }, []);
+}
+
+function getSLAInfo(createdAt) {
+  const mins = Math.floor((Date.now() - new Date(createdAt)) / 60000);
+  const secs = Math.floor(((Date.now() - new Date(createdAt)) % 60000) / 1000);
+  const label = mins >= 60
+    ? `${Math.floor(mins/60)}h${String(mins % 60).padStart(2,'0')}m`
+    : `${mins}:${String(secs).padStart(2,'0')}`;
+  if (mins < 10) return { label, color: '#107c41', bg: 'rgba(16,124,65,0.1)', border: '#107c41', emoji: '🟢' };
+  if (mins < 30) return { label, color: '#d83b01', bg: 'rgba(255,170,68,0.1)', border: '#d83b01', emoji: '🟡' };
+  return { label, color: '#a80000', bg: 'rgba(168,0,0,0.12)', border: '#a80000', emoji: '🔴' };
+}
 import {
   makeStyles,
   Title2,
@@ -79,19 +99,30 @@ const useStyles = makeStyles({
     gap: '12px',
   },
   ticketCard: {
-    padding: '16px',
+    padding: '16px 16px 16px 20px',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: '16px',
     transition: 'all 0.2s ease',
+    position: 'relative',
+    overflow: 'hidden',
     ':hover': {
       boxShadow: 'var(--shadow-md)',
+      transform: 'translateX(2px)',
     },
     '@media (max-width: 600px)': {
       flexDirection: 'column',
       alignItems: 'flex-start',
     },
+  },
+  ticketSLABar: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: '4px',
+    borderRadius: '8px 0 0 8px',
   },
   ticketInfo: {
     display: 'flex',
@@ -103,6 +134,19 @@ const useStyles = makeStyles({
     display: 'flex',
     gap: '8px',
     flexShrink: '0',
+    alignItems: 'center',
+  },
+  slaTimer: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px',
+    fontWeight: '700',
+    fontVariantNumeric: 'tabular-nums',
+    fontSize: '0.8rem',
+    padding: '4px 10px',
+    borderRadius: '8px',
+    minWidth: '68px',
+    justifyContent: 'center',
   },
   syncBar: {
     display: 'flex',
@@ -130,6 +174,7 @@ const STATUS_CONFIG = {
 
 export default function Chamados() {
   const styles = useStyles();
+  useLiveTick(); // forces re-render each second for SLA timers
   const {
     state,
     parseSmartPaste,
@@ -309,10 +354,16 @@ export default function Chamados() {
         )}
         {sortedTickets.map(ticket => {
           const cfg = STATUS_CONFIG[ticket.status] || STATUS_CONFIG['Aberto'];
+          const isActive = ticket.status !== 'Concluído';
+          const sla = isActive ? getSLAInfo(ticket.createdAt) : null;
           return (
-            <Card key={ticket.id} className={styles.ticketCard} appearance="outline">
+            <Card key={ticket.id} className={styles.ticketCard} appearance="outline"
+              style={sla ? { borderLeft: `2px solid ${sla.border}` } : {}}>
+              {/* SLA accent bar */}
+              {sla && <div className={styles.ticketSLABar} style={{ background: sla.border }} />}
+
               <div className={styles.ticketInfo}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                   <Badge appearance="filled" color={cfg.color} icon={cfg.icon}>
                     {ticket.status}
                   </Badge>
@@ -320,14 +371,21 @@ export default function Chamados() {
                   <Text size={200} style={{ color: 'var(--color-text-secondary)' }}>{ticket.classId}</Text>
                 </div>
                 <Text size={200} style={{ color: 'var(--color-text-secondary)', marginTop: '4px' }}>
-                  {ticket.reasons?.join(', ')} → {ticket.destination}
+                  {ticket.reasons?.join(', ')} → <strong>{ticket.destination}</strong>
                 </Text>
-                <Text size={100} style={{ color: 'var(--color-text-secondary)' }}>
-                  {new Date(ticket.createdAt).toLocaleString('pt-BR')}
-                  {ticket.acceptedBy && ` • Aceito por ${ticket.acceptedBy}`}
+                <Text size={100} style={{ color: 'var(--color-text-secondary)', marginTop: '2px' }}>
+                  Aberto às {new Date(ticket.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                  {ticket.acceptedBy && <span style={{ color: 'var(--color-brand)' }}> · 👤 {ticket.acceptedBy}</span>}
                 </Text>
               </div>
+
               <div className={styles.ticketActions}>
+                {/* Live SLA Timer */}
+                {sla && (
+                  <div className={styles.slaTimer} style={{ background: sla.bg, color: sla.color }}>
+                    {sla.emoji} {sla.label}
+                  </div>
+                )}
                 {ticket.status === 'Aberto' && (
                   <Button
                     appearance="primary"
@@ -344,7 +402,7 @@ export default function Chamados() {
                     size="small"
                     icon={<CheckmarkRegular />}
                     onClick={() => handleComplete(ticket.id)}
-                    style={{ backgroundColor: 'var(--color-success)' }}
+                    style={{ background: 'var(--color-success)' }}
                   >
                     Concluir
                   </Button>

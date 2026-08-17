@@ -65,6 +65,18 @@
   /* Animation */
   --transition-speed: 0.2s;
   --transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Login page gradient */
+  --login-bg: linear-gradient(135deg, #0a0a1a 0%, #0d1b3e 40%, #0a2a5c 70%, #0e0e28 100%);
+
+  /* Card hover lift */
+  --card-hover-transform: translateY(-2px);
+  --card-hover-shadow: 0 12px 32px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.1);
+
+  /* Glassmorphism */
+  --glass-bg: rgba(255,255,255,0.06);
+  --glass-border: rgba(255,255,255,0.12);
+  --glass-blur: blur(20px);
 }
 
 /* Dark Mode Overrides */
