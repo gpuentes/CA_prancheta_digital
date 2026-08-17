@@ -7,21 +7,23 @@ import {
   Text,
   Card,
   Badge,
-  Divider,
   TabList,
   Tab,
 } from '@fluentui/react-components';
 import {
-  DataBarVerticalRegular,
-  ClockRegular,
-  TagRegular,
   AlertUrgentRegular,
-  PersonRegular,
   LocationRegular,
   WeatherSunnyRegular,
   WeatherPartlyCloudyDayRegular,
 } from '@fluentui/react-icons';
+import {
+  ChartHorarioPico,
+  ChartCategorias,
+  ChartTendenciaSemanal,
+  ChartMonitores,
+} from './DashboardCharts.jsx';
 
+// ─── Estilos ────────────────────────────────────────────────────────────────
 const useStyles = makeStyles({
   container: {
     display: 'flex',
@@ -30,7 +32,7 @@ const useStyles = makeStyles({
   },
   metricsRow: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
     gap: '16px',
   },
   metricCard: {
@@ -90,14 +92,6 @@ const useStyles = makeStyles({
     padding: '8px 0',
     borderBottom: '1px solid var(--border-color)',
   },
-  chartContainer: {
-    width: '100%',
-    height: '200px',
-  },
-  barChart: {
-    width: '100%',
-    height: '100%',
-  },
   heatmapItem: {
     display: 'flex',
     alignItems: 'center',
@@ -113,91 +107,141 @@ const useStyles = makeStyles({
   },
   heatmapBar: {
     height: '100%',
-    backgroundColor: 'var(--color-danger)', // Red for heatmap
+    backgroundColor: 'var(--color-danger)',
     borderRadius: '6px',
     transition: 'width 0.3s ease',
   },
 });
 
-// Severity color mapping
-const SEVERITY_COLORS = {
-  error: '#a80000',
-  warning: '#d83b01',
-  info: '#0078d4',
-};
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+const WEEK_DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
+function buildByHour(occurrences) {
+  const map = {};
+  for (let h = 6; h <= 18; h++) map[h] = 0;
+  occurrences.forEach(occ => {
+    const h = new Date(occ.date).getHours();
+    if (h >= 6 && h <= 18) map[h] = (map[h] || 0) + 1;
+  });
+  return Object.entries(map).map(([hora, total]) => ({ hora: Number(hora), total }));
+}
+
+function buildByCategory(occurrences) {
+  const map = {};
+  occurrences.forEach(occ => {
+    (occ.reasons || []).forEach(r => { map[r] = (map[r] || 0) + 1; });
+  });
+  return Object.entries(map)
+    .map(([categoria, total]) => ({ categoria, total }))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 8);
+}
+
+function buildByDay(occurrences) {
+  const today = new Date();
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() - (6 - i));
+    const start = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const end = new Date(start); end.setDate(end.getDate() + 1);
+    return {
+      dia: WEEK_DAYS[d.getDay()],
+      total: occurrences.filter(o => {
+        const dt = new Date(o.date);
+        return dt >= start && dt < end;
+      }).length,
+    };
+  });
+}
+
+function buildByMonitor(occurrences) {
+  const map = {};
+  occurrences.forEach(occ => {
+    const m = occ.monitorName || 'Desconhecido';
+    map[m] = (map[m] || 0) + 1;
+  });
+  return Object.entries(map)
+    .map(([monitor, total]) => ({ monitor, total }))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 6);
+}
+
+// ─── Componente Principal ─────────────────────────────────────────────────────
 export default function Dashboard() {
   const styles = useStyles();
   const { state } = useAuth();
-  const [shift, setShift] = React.useState('todos'); // 'todos', 'manha', 'tarde'
+  const [shift, setShift] = React.useState('todos');
 
-  const stats = useMemo(() => {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const weekAgo = new Date(today);
-    weekAgo.setDate(weekAgo.getDate() - 7);
-
-    // Filter occurrences based on shift
-    const filteredOccurrences = state.occurrences.filter(occ => {
+  const filtered = useMemo(() => {
+    return state.occurrences.filter(occ => {
       if (shift === 'todos') return true;
       const h = new Date(occ.date).getHours();
       if (shift === 'manha') return h >= 6 && h < 13;
       if (shift === 'tarde') return h >= 13 && h < 19;
-      return false; // Night occurrences ignored in these filters
+      return false;
     });
+  }, [state.occurrences, shift]);
 
-    const totalOcc = filteredOccurrences.length;
-    const todayOcc = filteredOccurrences.filter(o => new Date(o.date) >= today).length;
-    const weekOcc = filteredOccurrences.filter(o => new Date(o.date) >= weekAgo).length;
+  const stats = useMemo(() => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const weekAgo = new Date(today); weekAgo.setDate(weekAgo.getDate() - 7);
+    const thirtyAgo = new Date(); thirtyAgo.setDate(thirtyAgo.getDate() - 30);
+
+    // Métricas simples
+    const totalOcc   = filtered.length;
+    const todayOcc   = filtered.filter(o => new Date(o.date) >= today).length;
+    const weekOcc    = filtered.filter(o => new Date(o.date) >= weekAgo).length;
     const openTickets = state.tickets.filter(t => t.status === 'Aberto').length;
     const totalStudents = state.students.length;
 
-    // Heatmap (Locations)
+    // Heatmap de locais
     const locationMap = {};
-    filteredOccurrences.forEach(occ => {
+    filtered.forEach(occ => {
       const loc = occ.location || 'Não informado';
       locationMap[loc] = (locationMap[loc] || 0) + 1;
     });
     const locations = Object.entries(locationMap)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5);
+      .sort((a, b) => b[1] - a[1]).slice(0, 5);
     const maxLocationCount = locations.length > 0 ? locations[0][1] : 1;
 
-    // Recurrent students (3+ in 30 days)
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    // Alunos recorrentes
     const studentOccCount = {};
-    filteredOccurrences
-      .filter(o => new Date(o.date) >= thirtyDaysAgo)
-      .forEach(o => {
-        studentOccCount[o.studentId] = (studentOccCount[o.studentId] || 0) + 1;
-      });
+    filtered.filter(o => new Date(o.date) >= thirtyAgo)
+      .forEach(o => { studentOccCount[o.studentId] = (studentOccCount[o.studentId] || 0) + 1; });
     const recurrentStudents = Object.entries(studentOccCount)
       .filter(([, count]) => count >= 2)
       .sort((a, b) => b[1] - a[1])
-      .map(([id, count]) => {
-        const student = state.students.find(s => s.id === id);
-        return { student, count };
-      })
+      .map(([id, count]) => ({ student: state.students.find(s => s.id === id), count }))
       .filter(item => item.student);
 
-    return { totalOcc, todayOcc, weekOcc, openTickets, totalStudents, locations, maxLocationCount, recurrentStudents };
-  }, [state.occurrences, state.tickets, state.students, shift]);
+    // Dados para os 4 gráficos
+    const byHour     = buildByHour(filtered);
+    const byCategory = buildByCategory(filtered);
+    const byDay      = buildByDay(filtered);
+    const byMonitor  = buildByMonitor(filtered);
 
-  const maxHourVal = Math.max(...(stats.hours.map(h => h[1])), 1);
+    return {
+      totalOcc, todayOcc, weekOcc, openTickets, totalStudents,
+      locations, maxLocationCount, recurrentStudents,
+      byHour, byCategory, byDay, byMonitor,
+    };
+  }, [filtered, state.tickets, state.students]);
 
   return (
     <div className={styles.container}>
+
+      {/* ─── Cabeçalho + Filtro de Turno ─── */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <Title2>Dashboard Executivo</Title2>
-        <TabList selectedValue={shift} onTabSelect={(e, data) => setShift(data.value)}>
+        <TabList selectedValue={shift} onTabSelect={(_, data) => setShift(data.value)}>
           <Tab value="todos">Tudo</Tab>
           <Tab value="manha" icon={<WeatherSunnyRegular />}>Manhã</Tab>
           <Tab value="tarde" icon={<WeatherPartlyCloudyDayRegular />}>Tarde</Tab>
         </TabList>
       </div>
 
-      {/* ─── Metrics ─── */}
+      {/* ─── Cards de Métricas ─── */}
       <div className={styles.metricsRow}>
         <Card className={styles.metricCard} appearance="outline">
           <div className={styles.metricValue}>{stats.totalOcc}</div>
@@ -212,7 +256,10 @@ export default function Dashboard() {
           <div className={styles.metricLabel}>Últimos 7 dias</div>
         </Card>
         <Card className={styles.metricCard} appearance="outline">
-          <div className={styles.metricValue} style={{ color: stats.openTickets > 0 ? 'var(--color-warning)' : 'var(--color-success)' }}>
+          <div
+            className={styles.metricValue}
+            style={{ color: stats.openTickets > 0 ? 'var(--color-warning)' : 'var(--color-success)' }}
+          >
             {stats.openTickets}
           </div>
           <div className={styles.metricLabel}>Chamados Abertos</div>
@@ -223,15 +270,15 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* ─── Widgets ─── */}
+      {/* ─── Grade de Widgets ─── */}
       <div className={styles.widgetGrid}>
 
-        {/* Heatmap (Áreas Quentes) */}
+        {/* Heatmap de Áreas */}
         <Card className={styles.widget} appearance="outline">
           <div className={styles.widgetHeader}>
             <div className={styles.headerTitle}>
               <LocationRegular />
-              <Title3>Áreas Quentes (Heatmap)</Title3>
+              <Title3>Áreas Quentes</Title3>
             </div>
             <Badge appearance="tint" color="danger">Risco</Badge>
           </div>
@@ -240,9 +287,14 @@ export default function Dashboard() {
               const widthPct = Math.max(10, (count / stats.maxLocationCount) * 100);
               return (
                 <div key={label} className={styles.heatmapItem}>
-                  <Text style={{ width: '120px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</Text>
+                  <Text style={{ width: '120px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {label}
+                  </Text>
                   <div className={styles.heatmapBarWrapper}>
-                    <div className={styles.heatmapBar} style={{ width: `${widthPct}%`, opacity: Math.max(0.4, count / stats.maxLocationCount) }} />
+                    <div
+                      className={styles.heatmapBar}
+                      style={{ width: `${widthPct}%`, opacity: Math.max(0.4, count / stats.maxLocationCount) }}
+                    />
                   </div>
                   <Text weight="semibold" style={{ width: '30px', textAlign: 'right' }}>{count}</Text>
                 </div>
@@ -254,7 +306,7 @@ export default function Dashboard() {
           </div>
         </Card>
 
-        {/* Recurrent Students (Top Offenders) */}
+        {/* Alunos em Risco */}
         <Card className={styles.widget} appearance="outline">
           <div className={styles.widgetHeader}>
             <div className={styles.headerTitle}>
@@ -276,7 +328,29 @@ export default function Dashboard() {
             <Text style={{ color: 'var(--color-text-secondary)' }}>Nenhum aluno recorrente.</Text>
           )}
         </Card>
+
+        {/* Gráfico — Horário de Pico */}
+        <Card appearance="outline" style={{ padding: 0 }}>
+          <ChartHorarioPico data={stats.byHour} />
+        </Card>
+
+        {/* Gráfico — Tipos de Infração */}
+        <Card appearance="outline" style={{ padding: 0 }}>
+          <ChartCategorias data={stats.byCategory} />
+        </Card>
+
+        {/* Gráfico — Tendência 7 dias */}
+        <Card appearance="outline" style={{ padding: 0 }}>
+          <ChartTendenciaSemanal data={stats.byDay} />
+        </Card>
+
+        {/* Gráfico — Monitores */}
+        <Card appearance="outline" style={{ padding: 0 }}>
+          <ChartMonitores data={stats.byMonitor} />
+        </Card>
+
       </div>
     </div>
   );
 }
+
