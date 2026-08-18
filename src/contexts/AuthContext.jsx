@@ -120,9 +120,22 @@ export function AuthProvider({ children }) {
     return result;
   }, [model, refresh]);
 
-  const exportOccurrencesCSV = useCallback(() => {
-    return model.exportOccurrencesCSV();
-  }, [model]);
+  // ── Quick Actions (RBAC: Secretaria, Diretor, Admin) ──
+  const addQuickActionTemplate = useCallback((label, template) => {
+    const res = model.addQuickActionTemplate(label, template);
+    refresh();
+    return res;
+  }, [model, refresh]);
+
+  const updateQuickActionTemplate = useCallback((id, label, template) => {
+    model.updateQuickActionTemplate(id, label, template);
+    refresh();
+  }, [model, refresh]);
+
+  const deleteQuickActionTemplate = useCallback((id) => {
+    model.deleteQuickActionTemplate(id);
+    refresh();
+  }, [model, refresh]);
 
   const value = {
     // State
@@ -165,6 +178,11 @@ export function AuthProvider({ children }) {
     // CSV
     importStudentsCSV,
     exportOccurrencesCSV,
+
+    // Quick Actions
+    addQuickActionTemplate,
+    updateQuickActionTemplate,
+    deleteQuickActionTemplate,
 
     // Utility
     refresh,

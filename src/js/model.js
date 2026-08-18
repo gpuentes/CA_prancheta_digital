@@ -97,12 +97,29 @@ export class AppModel {
       tickets: [],
       settings: {},
       currentUser: null,
-      dashboardWidgets: ['metric-volumetry', 'chart-hours', 'chart-categories', 'list-recurrent', 'list-monitors']
+      dashboardWidgets: ['metric-volumetry', 'chart-hours', 'chart-categories', 'list-recurrent', 'list-monitors'],
+      quickActionTemplates: [],
+      monitorSchedules: [],
     };
 
     this.loadState();
     this.listeners = [];
   }
+
+  // Default Quick Actions
+  defaultQuickActions = [
+    { id: 'qa-1', label: 'Secretaria (Buscar item)', template: 'Monitor na secretaria, buscar item' },
+    { id: 'qa-2', label: 'Ir à Biblioteca', template: 'Monitor ir à biblioteca' },
+    { id: 'qa-3', label: 'Saída Antecipada', template: 'Aluno [Nome], motivo: vai embora (Saída Antecipada)' },
+    { id: 'qa-4', label: 'Saída de Irmãos', template: 'Irmãos: Aluno [Nome1] e Aluno [Nome2], motivo: sair pela secretaria' },
+  ];
+
+  // Default Monitor Schedules
+  defaultMonitorSchedules = [
+    { id: 'ms-1', name: 'Ana Paula', location: 'Pátio Principal', shift: 'Manhã', status: 'Ativo' },
+    { id: 'ms-2', name: 'Carlos Souza', location: 'Portão Entrada / Biblioteca', shift: 'Manhã', status: 'Ativo' },
+    { id: 'ms-3', name: 'Marcelo Dias', location: 'Quadra Esportiva', shift: 'Tarde', status: 'Ativo' },
+  ];
 
   // Subscribe to changes
   subscribe(listener) {
@@ -128,6 +145,12 @@ export class AppModel {
         if (!this.state.dashboardWidgets || !this.state.dashboardWidgets.includes('list-monitors')) {
           this.state.dashboardWidgets = ['metric-volumetry', 'chart-hours', 'chart-categories', 'list-recurrent', 'list-monitors'];
         }
+        if (!this.state.quickActionTemplates || this.state.quickActionTemplates.length === 0) {
+          this.state.quickActionTemplates = [...this.defaultQuickActions];
+        }
+        if (!this.state.monitorSchedules || this.state.monitorSchedules.length === 0) {
+          this.state.monitorSchedules = [...this.defaultMonitorSchedules];
+        }
       } else {
         this.initializeDefaultState();
       }
@@ -147,6 +170,8 @@ export class AppModel {
     this.state.tickets = [];
     this.state.currentUser = null;
     this.state.dashboardWidgets = ['metric-volumetry', 'chart-hours', 'chart-categories', 'list-recurrent', 'list-monitors'];
+    this.state.quickActionTemplates = [...this.defaultQuickActions];
+    this.state.monitorSchedules = [...this.defaultMonitorSchedules];
 
     // Generate some history to trigger recurrence and monitor statistics
     const today = new Date();
@@ -618,6 +643,32 @@ export class AppModel {
       .join('\n');
 
     return csvContent;
+  }
+  // Quick Action Templates Management (RBAC: Secretaria, Diretor, Admin)
+  addQuickActionTemplate(label, template) {
+    const newAction = {
+      id: 'qa-' + Date.now(),
+      label,
+      template,
+    };
+    this.state.quickActionTemplates = [...(this.state.quickActionTemplates || []), newAction];
+    this.notify();
+    return newAction;
+  }
+
+  updateQuickActionTemplate(id, label, template) {
+    this.state.quickActionTemplates = (this.state.quickActionTemplates || []).map(qa => {
+      if (qa.id === id) {
+        return { ...qa, label, template };
+      }
+      return qa;
+    });
+    this.notify();
+  }
+
+  deleteQuickActionTemplate(id) {
+    this.state.quickActionTemplates = (this.state.quickActionTemplates || []).filter(qa => qa.id !== id);
+    this.notify();
   }
 }
 export default AppModel;
