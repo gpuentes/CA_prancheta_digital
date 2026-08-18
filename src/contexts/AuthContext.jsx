@@ -44,6 +44,14 @@ export function AuthProvider({ children }) {
     return model.searchStudents(query);
   }, [model]);
 
+  const searchStudentsWithShift = useCallback((query, currentShift) => {
+    return model.searchStudentsWithShift(query, currentShift);
+  }, [model]);
+
+  const getTodayStudentOccurrences = useCallback((studentId) => {
+    return model.getTodayStudentOccurrences(studentId);
+  }, [model]);
+
   const checkRecurrence = useCallback((studentId, motive) => {
     return model.checkRecurrence(studentId, motive);
   }, [model]);
@@ -128,6 +136,8 @@ export function AuthProvider({ children }) {
 
     // Students
     searchStudents,
+    searchStudentsWithShift,
+    getTodayStudentOccurrences,
     checkRecurrence,
 
     // Occurrences

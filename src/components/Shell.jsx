@@ -188,7 +188,7 @@ const useStyles = makeStyles({
 
 const TAB_CONFIG = {
   dashboard: { label: 'Dashboard', path: '/dashboard', icon: <BoardRegular />, iconActive: <BoardFilled />, roles: ['diretor', 'admin'] },
-  patio:     { label: 'Pátio', path: '/monitor', icon: <ClipboardTaskListLtrRegular />, iconActive: <ClipboardTaskListLtrFilled />, roles: ['monitor', 'secretaria', 'diretor', 'admin'] },
+  patio:     { label: 'Pátio', path: '/patio', icon: <ClipboardTaskListLtrRegular />, iconActive: <ClipboardTaskListLtrFilled />, roles: ['monitor', 'secretaria', 'diretor', 'admin'] },
   chamados:  { label: 'Chamados', path: '/chamados', icon: <AlertRegular />, iconActive: <AlertFilled />, roles: ['monitor', 'secretaria', 'diretor', 'admin'] },
   diretoria: { label: 'Campainha', path: '/diretoria', icon: <AlertRegular />, iconActive: <AlertFilled />, roles: ['secretaria', 'diretor', 'admin'] },
   cms:       { label: 'Cadastros', path: '/cms', icon: <PeopleRegular />, iconActive: <PeopleFilled />, roles: ['secretaria', 'diretor', 'admin'] },

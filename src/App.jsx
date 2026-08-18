@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
 import Shell from './components/Shell.jsx';
 import Login from './pages/Login.jsx';
-import Monitor from './pages/Monitor.jsx';
+import Patio from './pages/Patio.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Chamados from './pages/Chamados.jsx';
 import Diretoria from './pages/Diretoria.jsx';
@@ -23,7 +23,7 @@ function PublicRoute({ children }) {
   const { isAuthenticated, currentUser } = useAuth();
   if (isAuthenticated) {
     if (currentUser?.role === 'sala') return <Navigate to="/terminal" replace />;
-    return <Navigate to="/monitor" replace />;
+    return <Navigate to="/patio" replace />;
   }
   return children;
 }
@@ -45,7 +45,8 @@ function App() {
             }
           >
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/monitor" element={<Monitor />} />
+            <Route path="/patio" element={<Patio />} />
+            <Route path="/monitor" element={<Navigate to="/patio" replace />} />
             <Route path="/chamados" element={<Chamados />} />
             <Route path="/diretoria" element={<Diretoria />} />
             <Route path="/cms" element={<CMS />} />

@@ -220,6 +220,43 @@ export class AppModel {
     });
   }
 
+  // Enhanced search with current shift & Eletiva fallback
+  searchStudentsWithShift(query, currentShift = 'manha') {
+    if (!query || query.length < 2) return [];
+
+    const term = this.normalizeString(query);
+    const matches = this.state.students.filter(student => {
+      const fullName = `${student.firstName} ${student.lastName}`;
+      const nameMatch = this.normalizeString(fullName).includes(term);
+      const classMatch = this.normalizeString(student.classId).includes(term);
+      return nameMatch || classMatch;
+    });
+
+    return matches.map(student => {
+      const classUpper = student.classId ? student.classId.toUpperCase() : '';
+      const isManha = classUpper.includes('M'); // 06 MA, 01 EMA, etc.
+      const studentShift = isManha ? 'manha' : 'tarde';
+      const isEletiva = currentShift !== 'todos' && studentShift !== currentShift;
+
+      return {
+        ...student,
+        detectedShift: studentShift,
+        isEletiva,
+      };
+    }).sort((a, b) => (a.isEletiva === b.isEletiva ? 0 : a.isEletiva ? 1 : -1));
+  }
+
+  // Get occurrences recorded today for a given student
+  getTodayStudentOccurrences(studentId) {
+    const today = new Date();
+    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+    return this.state.occurrences.filter(occ => {
+      const occDate = new Date(occ.date);
+      return occ.studentId === studentId && occDate >= startOfDay;
+    });
+  }
+
   normalizeString(str) {
     return str ? str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') : '';
   }
