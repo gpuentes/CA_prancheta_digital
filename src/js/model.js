@@ -111,7 +111,9 @@ export class AppModel {
     { id: 'qa-1', label: 'Secretaria (Buscar item)', template: 'Monitor na secretaria, buscar item' },
     { id: 'qa-2', label: 'Ir à Biblioteca', template: 'Monitor ir à biblioteca' },
     { id: 'qa-3', label: 'Saída Antecipada', template: 'Aluno [Nome], motivo: vai embora (Saída Antecipada)' },
-    { id: 'qa-4', label: 'Saída de Irmãos', template: 'Irmãos: Aluno [Nome1] e Aluno [Nome2], motivo: sair pela secretaria' },
+    { id: 'qa-4', label: 'Ir ao Orientador', template: 'Ir: Felipe ou Dani, motivo: fora do mapa' },
+    { id: 'qa-5', label: 'Saída de Irmãos', template: 'Irmãos: Aluno [Nome1] e Aluno [Nome2], motivo: sair pela secretaria' },
+
   ];
 
   // Default Monitor Schedules
