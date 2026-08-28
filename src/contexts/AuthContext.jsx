@@ -56,6 +56,14 @@ export function AuthProvider({ children }) {
     return model.checkRecurrence(studentId, motive);
   }, [model]);
 
+  const checkWeeklyRecurrence = useCallback((studentId) => {
+    return model.checkWeeklyRecurrence(studentId);
+  }, [model]);
+
+  const getActiveInterval = useCallback(() => {
+    return model.getActiveInterval();
+  }, [model]);
+
   // ── Occurrences ──
   const addOccurrence = useCallback((studentId, reasons, details, location) => {
     const occ = model.addOccurrence(studentId, reasons, details, location);
@@ -84,6 +92,20 @@ export function AuthProvider({ children }) {
     model.completeTicket(ticketId, finalReasons, details);
     refresh();
   }, [model, refresh]);
+
+  const editTicket = useCallback((ticketId, updates) => {
+    model.editTicket(ticketId, updates);
+    refresh();
+  }, [model, refresh]);
+
+  const cancelTicket = useCallback((ticketId) => {
+    model.cancelTicket(ticketId);
+    refresh();
+  }, [model, refresh]);
+
+  const getTicketSLA = useCallback((ticket) => {
+    return model.getTicketSLA(ticket);
+  }, [model]);
 
   // ── Dashboard ──
   const updateWidgetPositions = useCallback((orderedIds) => {
@@ -120,6 +142,10 @@ export function AuthProvider({ children }) {
     return result;
   }, [model, refresh]);
 
+  const exportOccurrencesCSV = useCallback(() => {
+    return model.exportOccurrencesCSV();
+  }, [model]);
+
   // ── Quick Actions (RBAC: Secretaria, Diretor, Admin) ──
   const addQuickActionTemplate = useCallback((label, template) => {
     const res = model.addQuickActionTemplate(label, template);
@@ -134,6 +160,21 @@ export function AuthProvider({ children }) {
 
   const deleteQuickActionTemplate = useCallback((id) => {
     model.deleteQuickActionTemplate(id);
+    refresh();
+  }, [model, refresh]);
+
+  // ── Classroom Seating Map ──
+  const getClassroom = useCallback((turmaId) => {
+    return model.getClassroom(turmaId);
+  }, [model]);
+
+  const updateSeatStatus = useCallback((turmaId, posicao, status) => {
+    model.updateSeatStatus(turmaId, posicao, status);
+    refresh();
+  }, [model, refresh]);
+
+  const swapSeats = useCallback((turmaId, posicaoA, posicaoB) => {
+    model.swapSeats(turmaId, posicaoA, posicaoB);
     refresh();
   }, [model, refresh]);
 
@@ -152,6 +193,8 @@ export function AuthProvider({ children }) {
     searchStudentsWithShift,
     getTodayStudentOccurrences,
     checkRecurrence,
+    checkWeeklyRecurrence,
+    getActiveInterval,
 
     // Occurrences
     addOccurrence,
@@ -163,6 +206,9 @@ export function AuthProvider({ children }) {
     createTicket,
     acceptTicket,
     completeTicket,
+    editTicket,
+    cancelTicket,
+    getTicketSLA,
 
     // Dashboard
     updateWidgetPositions,
@@ -183,6 +229,11 @@ export function AuthProvider({ children }) {
     addQuickActionTemplate,
     updateQuickActionTemplate,
     deleteQuickActionTemplate,
+
+    // Classroom Seating Map
+    getClassroom,
+    updateSeatStatus,
+    swapSeats,
 
     // Utility
     refresh,

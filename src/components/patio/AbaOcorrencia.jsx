@@ -25,228 +25,121 @@ import {
 
 const useStyles = makeStyles({
   container: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '20px',
-    maxWidth: '650px',
-    margin: '0 auto',
+    display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '650px', margin: '0 auto',
   },
   modeBar: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '8px 14px',
-    backgroundColor: 'var(--bg-sidebar)',
-    borderRadius: '20px',
-    border: '1px solid var(--border-color)',
-    marginBottom: '8px',
+    display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px',
+    backgroundColor: 'var(--bg-sidebar)', borderRadius: '20px', border: '1px solid var(--border-color)',
+    marginBottom: '8px', flexWrap: 'wrap',
   },
-  searchWrapper: {
-    position: 'relative',
-    width: '100%',
-  },
+  searchWrapper: { position: 'relative', width: '100%' },
   resultsList: {
-    position: 'absolute',
-    top: '100%',
-    left: '0',
-    right: '0',
-    backgroundColor: 'var(--bg-card)',
-    border: '1px solid var(--border-color-strong)',
-    borderRadius: '8px',
-    boxShadow: 'var(--shadow-md)',
-    maxHeight: '300px',
-    overflowY: 'auto',
-    zIndex: '50',
-    listStyle: 'none',
-    padding: '0',
-    margin: '4px 0 0 0',
+    position: 'absolute', top: '100%', left: '0', right: '0',
+    backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color-strong)',
+    borderRadius: '8px', boxShadow: 'var(--shadow-md)', maxHeight: '300px',
+    overflowY: 'auto', zIndex: '50', listStyle: 'none', padding: '0', margin: '4px 0 0 0',
   },
   resultItem: {
-    padding: '12px 16px',
-    cursor: 'pointer',
-    borderBottom: '1px solid var(--border-color)',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    padding: '12px 16px', cursor: 'pointer', borderBottom: '1px solid var(--border-color)',
+    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
     transition: 'background-color 0.15s ease',
-    ':hover': {
-      backgroundColor: 'var(--bg-sidebar-hover)',
-    },
+    ':hover': { backgroundColor: 'var(--bg-sidebar-hover)' },
   },
   studentCard: {
-    display: 'flex',
-    gap: '16px',
-    padding: '20px',
-    position: 'relative',
-    animationName: {
-      from: { opacity: 0, transform: 'translateY(8px)' },
-      to: { opacity: 1, transform: 'translateY(0)' },
-    },
-    animationDuration: '0.25s',
-    animationFillMode: 'forwards',
+    display: 'flex', gap: '16px', padding: '20px', position: 'relative',
+    animationName: { from: { opacity: 0, transform: 'translateY(8px)' }, to: { opacity: 1, transform: 'translateY(0)' } },
+    animationDuration: '0.25s', animationFillMode: 'forwards',
   },
   photoWrapper: {
-    width: '72px',
-    height: '90px',
-    borderRadius: '8px',
-    border: '1px solid var(--border-color)',
-    overflow: 'hidden',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'var(--bg-sidebar)',
-    flexShrink: '0',
+    width: '72px', height: '90px', borderRadius: '8px',
+    border: '1px solid var(--border-color)', overflow: 'hidden',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: 'var(--bg-sidebar)', flexShrink: '0',
   },
-  photoImg: {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover',
-  },
+  photoImg: { width: '100%', height: '100%', objectFit: 'cover' },
   studentInfo: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    flex: '1',
-    gap: '6px',
+    display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flex: '1', gap: '6px',
   },
   historyBadgeRow: {
-    display: 'flex',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: '6px',
-    marginTop: '4px',
+    display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '6px', marginTop: '4px',
   },
   historyIconBadge: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '4px',
-    padding: '3px 8px',
-    borderRadius: '12px',
-    fontSize: '12px',
-    fontWeight: '600',
+    display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 8px',
+    borderRadius: '12px', fontSize: '12px', fontWeight: '600',
+  },
+  weeklyFlag: {
+    display: 'inline-flex', alignItems: 'center', gap: '4px',
+    backgroundColor: 'rgba(220,38,38,0.12)', border: '2px solid #dc2626',
+    color: '#dc2626', borderRadius: '6px', padding: '4px 10px',
+    fontSize: '12px', fontWeight: '700', width: 'fit-content',
+    animationName: { '0%': { opacity: 1 }, '50%': { opacity: 0.6 }, '100%': { opacity: 1 } },
+    animationDuration: '1.5s', animationIterationCount: 'infinite',
   },
   recurrentBadge: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '4px',
-    backgroundColor: 'rgba(216, 59, 1, 0.1)',
-    border: '1px solid var(--color-warning)',
-    color: 'var(--color-warning)',
-    borderRadius: '4px',
-    padding: '2px 8px',
-    fontSize: '11px',
-    fontWeight: '600',
-    width: 'fit-content',
+    display: 'inline-flex', alignItems: 'center', gap: '4px',
+    backgroundColor: 'rgba(216,59,1,0.1)', border: '1px solid var(--color-warning)',
+    color: 'var(--color-warning)', borderRadius: '4px', padding: '2px 8px',
+    fontSize: '11px', fontWeight: '600', width: 'fit-content',
   },
-  ctaGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(2, 1fr)',
-    gap: '12px',
-  },
+  ctaGrid: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' },
   ctaButton: {
-    padding: '16px 12px',
-    fontSize: 'var(--font-size-md)',
-    fontWeight: '600',
-    textAlign: 'center',
-    cursor: 'pointer',
-    border: '1px solid transparent',
-    borderRadius: '4px',
-    minHeight: '64px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    transition: 'filter 0.2s, transform 0.15s',
-    boxShadow: 'var(--shadow-sm)',
-    ':hover': {
-      filter: 'brightness(0.92)',
-      transform: 'translateY(-1px)',
-    },
-    ':active': {
-      filter: 'brightness(0.85)',
-      transform: 'translateY(0)',
-    },
+    padding: '16px 12px', fontSize: 'var(--font-size-md)', fontWeight: '600', textAlign: 'center',
+    cursor: 'pointer', border: '1px solid transparent', borderRadius: '4px', minHeight: '64px',
+    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+    transition: 'filter 0.2s, transform 0.15s', boxShadow: 'var(--shadow-sm)',
+    ':hover': { filter: 'brightness(0.92)', transform: 'translateY(-1px)' },
+    ':active': { filter: 'brightness(0.85)', transform: 'translateY(0)' },
   },
-  chipContainer: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: '8px',
-    marginBottom: '16px',
-  },
+  chipContainer: { display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' },
   locationChip: {
-    minHeight: '44px',
-    padding: '8px 16px',
-    borderRadius: '22px',
-    border: '1px solid var(--border-color-strong)',
-    backgroundColor: 'var(--bg-card)',
-    color: 'var(--color-text)',
-    cursor: 'pointer',
-    fontWeight: '600',
+    minHeight: '44px', padding: '8px 16px', borderRadius: '22px',
+    border: '1px solid var(--border-color-strong)', backgroundColor: 'var(--bg-card)',
+    color: 'var(--color-text)', cursor: 'pointer', fontWeight: '600',
     transition: 'all 0.2s',
-    ':hover': {
-      backgroundColor: 'var(--bg-sidebar-hover)',
-    },
+    ':hover': { backgroundColor: 'var(--bg-sidebar-hover)' },
   },
   locationChipSelected: {
-    backgroundColor: 'var(--color-brand)',
-    color: '#fff',
-    borderColor: 'var(--color-brand)',
-    ':hover': {
-      backgroundColor: 'var(--color-brand-hover)',
-    },
+    backgroundColor: 'var(--color-brand)', color: '#fff', borderColor: 'var(--color-brand)',
+    ':hover': { backgroundColor: 'var(--color-brand-hover)' },
   },
   stickyFooter: {
-    position: 'sticky',
-    bottom: '0',
-    padding: '16px',
-    backgroundColor: 'var(--bg-app)',
-    borderTop: '1px solid var(--border-color)',
-    zIndex: 20,
-    display: 'flex',
-    justifyContent: 'center',
-    boxShadow: '0 -4px 16px rgba(0,0,0,0.1)',
-    margin: '20px -20px -20px -20px',
+    position: 'sticky', bottom: '0', padding: '16px', backgroundColor: 'var(--bg-app)',
+    borderTop: '1px solid var(--border-color)', zIndex: 20, display: 'flex', justifyContent: 'center',
+    boxShadow: '0 -4px 16px rgba(0,0,0,0.1)', margin: '20px -20px -20px -20px',
   },
   successCard: {
-    padding: '24px',
-    textAlign: 'center',
-    animationName: {
-      from: { opacity: 0, transform: 'scale(0.96)' },
-      to: { opacity: 1, transform: 'scale(1)' },
-    },
-    animationDuration: '0.3s',
-    animationFillMode: 'forwards',
+    padding: '24px', textAlign: 'center',
+    animationName: { from: { opacity: 0, transform: 'scale(0.96)' }, to: { opacity: 1, transform: 'scale(1)' } },
+    animationDuration: '0.3s', animationFillMode: 'forwards',
   },
 });
 
 export default function AbaOcorrencia() {
   const styles = useStyles();
   const {
-    state,
-    searchStudentsWithShift,
-    checkRecurrence,
-    getTodayStudentOccurrences,
-    addOccurrence,
+    state, searchStudentsWithShift, checkRecurrence, checkWeeklyRecurrence,
+    getTodayStudentOccurrences, addOccurrence, getActiveInterval,
   } = useAuth();
 
   const [devForcePeak, setDevForcePeak] = useState(null);
 
+  // Active interval based on current time
+  const activeInterval = useMemo(() => getActiveInterval(), []);
+
   const timeInfo = useMemo(() => {
     const now = new Date();
     const hours = now.getHours();
-    const minutes = now.getMinutes();
-    const totalMins = hours * 60 + minutes;
-
     const currentShift = hours < 13 ? 'manha' : 'tarde';
-    const isPeakWindow = totalMins >= 390 && totalMins <= 435;
-    const isPeakMode = devForcePeak !== null ? devForcePeak : isPeakWindow;
-
-    return { currentShift, isPeakMode, isPeakWindow };
-  }, [devForcePeak]);
+    const isPeakMode = devForcePeak !== null
+      ? devForcePeak
+      : !!activeInterval && (activeInterval.id.startsWith('ENTRADA'));
+    return { currentShift, isPeakMode };
+  }, [devForcePeak, activeInterval]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [recurrence, setRecurrence] = useState({ isRecurrent: false, count: 0 });
+  const [weeklyRec, setWeeklyRec] = useState({ count: 0, isFlagged: false });
   const [todayOccurrences, setTodayOccurrences] = useState([]);
 
   const [selectedLocation, setSelectedLocation] = useState('');
@@ -254,13 +147,20 @@ export default function AbaOcorrencia() {
   const [observation, setObservation] = useState('');
   const [occurrenceLogged, setOccurrenceLogged] = useState(null);
 
+  // Auto-fill location from active interval
   useEffect(() => {
-    if (timeInfo.isPeakMode) {
-      setSelectedLocation('( ENTRADA )');
-    } else if (selectedLocation === '( ENTRADA )') {
-      setSelectedLocation('');
+    if (activeInterval) {
+      setSelectedLocation(activeInterval.local_padrao);
     }
-  }, [timeInfo.isPeakMode]);
+  }, [activeInterval]);
+
+  // Suggested motives from active interval (or defaults)
+  const suggestedMotives = useMemo(() => {
+    if (activeInterval && activeInterval.motivos_sugeridos) {
+      return activeInterval.motivos_sugeridos;
+    }
+    return ['Falta de Uniforme (Blusa)', 'Adorno Inadequado', 'Falta de calçado (Chinelo)', 'Uso de Celular', 'Conversa em Excesso', 'Corrida / Acidente'];
+  }, [activeInterval]);
 
   const results = useMemo(() => {
     if (searchQuery.trim().length < 2) return [];
@@ -273,11 +173,13 @@ export default function AbaOcorrencia() {
     setOccurrenceLogged(null);
     setObservation('');
     setSelectedMotive('');
-    if (!timeInfo.isPeakMode) setSelectedLocation('');
 
     const ctaLabel = state?.settings?.patioCta?.label || 'FALTA DE UNIFORME';
     const rec = checkRecurrence(student.id, ctaLabel);
     setRecurrence(rec);
+
+    const weekly = checkWeeklyRecurrence(student.id);
+    setWeeklyRec(weekly);
 
     const todays = getTodayStudentOccurrences(student.id);
     setTodayOccurrences(todays);
@@ -297,10 +199,11 @@ export default function AbaOcorrencia() {
     setSelectedStudent(null);
     setOccurrenceLogged(null);
     setRecurrence({ isRecurrent: false, count: 0 });
+    setWeeklyRec({ count: 0, isFlagged: false });
     setTodayOccurrences([]);
     setSelectedMotive('');
-    if (!timeInfo.isPeakMode) setSelectedLocation('');
     setObservation('');
+    if (activeInterval) setSelectedLocation(activeInterval.local_padrao);
   };
 
   const commonLocations = useMemo(() => {
@@ -312,17 +215,14 @@ export default function AbaOcorrencia() {
     if (!todayOccurrences || todayOccurrences.length === 0) return [];
     const allReasons = todayOccurrences.flatMap(o => o.reasons || []);
     const badges = [];
-
-    if (allReasons.some(r => r.toLowerCase().includes('uniforme'))) {
+    if (allReasons.some(r => r.toLowerCase().includes('uniforme')))
       badges.push({ icon: '👕', label: 'Uniforme', color: 'var(--color-brand)', bg: 'rgba(0,120,212,0.1)' });
-    }
-    if (allReasons.some(r => r.toLowerCase().includes('calçado') || r.toLowerCase().includes('crokqs'))) {
+    if (allReasons.some(r => r.toLowerCase().includes('calçado') || r.toLowerCase().includes('crokqs')))
       badges.push({ icon: '🩴', label: 'Calçado', color: '#d83b01', bg: 'rgba(216,59,1,0.1)' });
-    }
-    if (allReasons.some(r => r.toLowerCase().includes('adorno'))) {
+    if (allReasons.some(r => r.toLowerCase().includes('adorno')))
       badges.push({ icon: '💍', label: 'Adorno', color: '#8764b8', bg: 'rgba(135,100,184,0.1)' });
-    }
-
+    if (allReasons.some(r => r.toLowerCase().includes('celular')))
+      badges.push({ icon: '📱', label: 'Celular', color: '#d83b01', bg: 'rgba(216,59,1,0.1)' });
     return badges;
   }, [todayOccurrences]);
 
@@ -338,16 +238,20 @@ export default function AbaOcorrencia() {
     <div className={styles.container}>
       {/* Indicator & Dev Toggle */}
       <div className={styles.modeBar}>
-        <ClockRegular style={{ color: timeInfo.isPeakMode ? 'var(--color-warning)' : 'var(--color-brand)' }} />
+        <ClockRegular style={{ color: activeInterval ? 'var(--color-warning)' : 'var(--color-brand)' }} />
         <Text size={200} weight="semibold">
-          {timeInfo.isPeakMode ? 'Horário de Pico (Entrada)' : 'Fluxo Normal'}
+          {activeInterval ? `${activeInterval.tipo}` : 'Fluxo Normal (fora do intervalo)'}
         </Text>
+        {activeInterval && (
+          <Badge appearance="tint" color="warning" size="small">
+            {activeInterval.hora_inicio} — {activeInterval.hora_fim}
+          </Badge>
+        )}
         <Badge appearance="tint" color={timeInfo.currentShift === 'manha' ? 'brand' : 'important'}>
           {timeInfo.currentShift === 'manha' ? 'Manhã' : 'Tarde'}
         </Badge>
         <Button
-          appearance="subtle"
-          size="small"
+          appearance="subtle" size="small"
           onClick={() => setDevForcePeak(prev => prev === null ? !timeInfo.isPeakMode : !prev)}
           title="Alternar Modo de Pico (Teste)"
           style={{ fontSize: '11px', padding: '2px 6px', marginLeft: 'auto' }}
@@ -364,32 +268,34 @@ export default function AbaOcorrencia() {
             contentBefore={<SearchRegular />}
             value={searchQuery}
             onChange={(e, data) => setSearchQuery(data.value)}
-            size="large"
-            style={{ width: '100%' }}
-            autoFocus
-            id="patio-student-search"
+            size="large" style={{ width: '100%' }} autoFocus id="patio-student-search"
           />
           {results.length > 0 && (
             <ul className={styles.resultsList} role="listbox">
-              {results.map(student => (
-                <li
-                  key={student.id}
-                  className={styles.resultItem}
-                  role="option"
-                  onClick={() => handleSelectStudent(student)}
-                  tabIndex={0}
-                >
-                  <div>
-                    <Text weight="semibold">{student.firstName} {student.lastName}</Text>
-                    {student.isEletiva && (
-                      <Badge appearance="tint" color="important" style={{ marginLeft: '8px', fontSize: '10px' }}>
-                        Eletiva / Turno Oposto
-                      </Badge>
-                    )}
-                  </div>
-                  <Text size={200} style={{ color: 'var(--color-text-secondary)' }}>{student.classId}</Text>
-                </li>
-              ))}
+              {results.map(student => {
+                const weeklyCheck = checkWeeklyRecurrence(student.id);
+                return (
+                  <li key={student.id} className={styles.resultItem} role="option"
+                    onClick={() => handleSelectStudent(student)} tabIndex={0}
+                    style={weeklyCheck.isFlagged ? { borderLeft: '3px solid #dc2626' } : {}}
+                  >
+                    <div>
+                      <Text weight="semibold">{student.firstName} {student.lastName}</Text>
+                      {weeklyCheck.isFlagged && (
+                        <Badge appearance="filled" color="danger" style={{ marginLeft: '8px', fontSize: '10px' }}>
+                          ⚠ {weeklyCheck.count}x semana
+                        </Badge>
+                      )}
+                      {student.isEletiva && (
+                        <Badge appearance="tint" color="important" style={{ marginLeft: '8px', fontSize: '10px' }}>
+                          Eletiva / Turno Oposto
+                        </Badge>
+                      )}
+                    </div>
+                    <Text size={200} style={{ color: 'var(--color-text-secondary)' }}>{student.classId}</Text>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
@@ -398,6 +304,14 @@ export default function AbaOcorrencia() {
       {/* Student Profile & Form */}
       {selectedStudent && !occurrenceLogged && (
         <>
+          {/* Weekly Flag Alert */}
+          {weeklyRec.isFlagged && (
+            <div className={styles.weeklyFlag}>
+              <AlertUrgentRegular style={{ fontSize: '16px' }} />
+              ⚠ REINCIDENTE SEMANAL — {weeklyRec.count} ocorrências esta semana
+            </div>
+          )}
+
           <Card className={styles.studentCard} appearance="outline">
             <div className={styles.photoWrapper}>
               <img className={styles.photoImg} src={photoUrl} alt={`Foto de ${selectedStudent.firstName}`} />
@@ -418,7 +332,6 @@ export default function AbaOcorrencia() {
                 </div>
               </div>
 
-              {/* History Badges & Observation Popover */}
               <div className={styles.historyBadgeRow}>
                 {historyBadges.map((b, idx) => (
                   <span key={idx} className={styles.historyIconBadge} style={{ backgroundColor: b.bg, color: b.color }}>
@@ -464,22 +377,26 @@ export default function AbaOcorrencia() {
           {/* Location */}
           <div style={{ marginTop: '4px' }}>
             <Text weight="semibold" style={{ marginBottom: '8px', display: 'block' }}>1. Localização Exata</Text>
-            {timeInfo.isPeakMode ? (
+            {activeInterval ? (
               <div className={styles.chipContainer}>
-                <button className={`${styles.locationChip} ${styles.locationChipSelected}`}>
-                  📍 ( ENTRADA ) — Pico de Entrada
+                <button className={`${styles.locationChip} ${selectedLocation === activeInterval.local_padrao ? styles.locationChipSelected : ''}`}
+                  onClick={() => setSelectedLocation(activeInterval.local_padrao)}>
+                  📍 {activeInterval.local_padrao} ({activeInterval.tipo})
                 </button>
+                {commonLocations.filter(l => l.name !== activeInterval.local_padrao).slice(0, 4).map(loc => (
+                  <button key={loc.id}
+                    className={`${styles.locationChip} ${selectedLocation === loc.name ? styles.locationChipSelected : ''}`}
+                    onClick={() => setSelectedLocation(loc.name)}>
+                    {loc.name}
+                  </button>
+                ))}
               </div>
             ) : (
               <div className={styles.chipContainer} role="radiogroup" aria-label="Localização">
                 {commonLocations.map(loc => (
-                  <button
-                    key={loc.id}
+                  <button key={loc.id}
                     className={`${styles.locationChip} ${selectedLocation === loc.name ? styles.locationChipSelected : ''}`}
-                    onClick={() => setSelectedLocation(loc.name)}
-                    role="radio"
-                    aria-checked={selectedLocation === loc.name}
-                  >
+                    onClick={() => setSelectedLocation(loc.name)} role="radio" aria-checked={selectedLocation === loc.name}>
                     {loc.name}
                   </button>
                 ))}
@@ -487,87 +404,40 @@ export default function AbaOcorrencia() {
             )}
           </div>
 
-          {/* Motive */}
+          {/* Motive — dynamic from interval */}
           <div>
             <Text weight="semibold" style={{ marginBottom: '8px', display: 'block' }}>
-              2. Motivo {timeInfo.isPeakMode && '(Botões Rápidos)'}
+              2. Motivo {activeInterval && `(${activeInterval.tipo})`}
             </Text>
             <div className={styles.ctaGrid}>
-              <button
-                className={styles.ctaButton}
-                style={{
-                  backgroundColor: selectedMotive === 'FALTA DE UNIFORME' ? 'var(--color-brand)' : '#107c41',
-                  color: '#ffffff',
-                  gridColumn: '1 / -1',
-                  opacity: selectedMotive && selectedMotive !== 'FALTA DE UNIFORME' ? 0.6 : 1,
-                }}
-                onClick={() => setSelectedMotive('FALTA DE UNIFORME')}
-              >
-                👕 FALTA DE UNIFORME
-              </button>
+              {suggestedMotives.map((motive, idx) => (
+                <button key={motive} className={styles.ctaButton}
+                  style={{
+                    backgroundColor: selectedMotive === motive ? 'var(--color-brand)' : (idx === 0 ? '#107c41' : 'var(--bg-card)'),
+                    color: selectedMotive === motive ? '#fff' : (idx === 0 ? '#fff' : 'var(--color-text)'),
+                    borderColor: idx === 0 ? 'transparent' : 'var(--border-color-strong)',
+                    gridColumn: idx === 0 ? '1 / -1' : undefined,
+                    opacity: selectedMotive && selectedMotive !== motive ? 0.6 : 1,
+                  }}
+                  onClick={() => setSelectedMotive(motive)}
+                >
+                  {motive}
+                </button>
+              ))}
 
-              <button
-                className={styles.ctaButton}
-                style={{
-                  backgroundColor: selectedMotive === 'Adorno Inadequado' ? 'var(--color-brand)' : 'var(--bg-card)',
-                  color: selectedMotive === 'Adorno Inadequado' ? '#fff' : 'var(--color-text)',
-                  borderColor: 'var(--border-color-strong)',
-                }}
-                onClick={() => setSelectedMotive('Adorno Inadequado')}
-              >
-                💍 Adorno Inadequado
-              </button>
-
-              <button
-                className={styles.ctaButton}
-                style={{
-                  backgroundColor: selectedMotive === 'Falta de calçado (Crokqs)' ? 'var(--color-brand)' : 'var(--bg-card)',
-                  color: selectedMotive === 'Falta de calçado (Crokqs)' ? '#fff' : 'var(--color-text)',
-                  borderColor: 'var(--border-color-strong)',
-                }}
-                onClick={() => setSelectedMotive('Falta de calçado (Crokqs)')}
-              >
-                🩴 Falta de Calçado
-              </button>
-
-              {!timeInfo.isPeakMode && (
-                <>
-                  <button
-                    className={styles.ctaButton}
-                    style={{
-                      backgroundColor: selectedMotive === 'Uso de Celular' ? 'var(--color-brand)' : 'var(--bg-card)',
-                      color: selectedMotive === 'Uso de Celular' ? '#fff' : 'var(--color-text)',
-                      borderColor: 'var(--border-color-strong)',
-                    }}
-                    onClick={() => setSelectedMotive('Uso de Celular')}
-                  >
-                    📱 Uso de Celular
-                  </button>
-
-                  <button
-                    className={styles.ctaButton}
-                    style={{
-                      backgroundColor: selectedMotive === 'Conversa em Excesso' ? 'var(--color-brand)' : 'var(--bg-card)',
-                      color: selectedMotive === 'Conversa em Excesso' ? '#fff' : 'var(--color-text)',
-                      borderColor: 'var(--border-color-strong)',
-                    }}
-                    onClick={() => setSelectedMotive('Conversa em Excesso')}
-                  >
-                    🗣️ Conversa Excesso
-                  </button>
-
-                  <button
-                    className={styles.ctaButton}
-                    style={{
-                      backgroundColor: selectedMotive === 'Corrida / Acidente' ? 'var(--color-brand)' : 'var(--bg-card)',
-                      color: selectedMotive === 'Corrida / Acidente' ? '#fff' : 'var(--color-text)',
-                      borderColor: 'var(--border-color-strong)',
-                    }}
-                    onClick={() => setSelectedMotive('Corrida / Acidente')}
-                  >
-                    🏃 Corrida / Acidente
-                  </button>
-                </>
+              {/* Sempre mostrar "Outro" */}
+              {!suggestedMotives.includes('Outro / Observação') && (
+                <button className={styles.ctaButton}
+                  style={{
+                    backgroundColor: selectedMotive === 'Outro / Observação' ? 'var(--color-brand)' : 'var(--bg-card)',
+                    color: selectedMotive === 'Outro / Observação' ? '#fff' : 'var(--color-text)',
+                    borderColor: 'var(--border-color-strong)',
+                    opacity: selectedMotive && selectedMotive !== 'Outro / Observação' ? 0.6 : 1,
+                  }}
+                  onClick={() => setSelectedMotive('Outro / Observação')}
+                >
+                  📝 Outro / Observação
+                </button>
               )}
             </div>
           </div>
@@ -578,11 +448,8 @@ export default function AbaOcorrencia() {
               <Text weight="semibold">3. Observações (Opcional)</Text>
               <Textarea
                 placeholder="Descreva detalhes da ocorrência..."
-                size="large"
-                resize="vertical"
-                rows={2}
-                value={observation}
-                onChange={(e, data) => setObservation(data.value)}
+                size="large" resize="vertical" rows={2}
+                value={observation} onChange={(e, data) => setObservation(data.value)}
               />
             </div>
           )}
@@ -590,8 +457,7 @@ export default function AbaOcorrencia() {
           {/* Sticky Confirm */}
           <div className={styles.stickyFooter}>
             <Button
-              appearance="primary"
-              size="large"
+              appearance="primary" size="large"
               style={{ width: '100%', minHeight: '52px', fontSize: '16px' }}
               disabled={!selectedLocation || !selectedMotive}
               onClick={handleConfirm}

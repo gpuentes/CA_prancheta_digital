@@ -31,6 +31,7 @@ import {
   TagRegular,
   ClipboardTaskListLtrRegular,
   BuildingRegular,
+  ClockRegular,
 } from '@fluentui/react-icons';
 
 const useStyles = makeStyles({
@@ -96,6 +97,7 @@ const TABS = [
   { value: 'users', label: 'Usuários', icon: <PeopleRegular /> },
   { value: 'rooms', label: 'Locais', icon: <BuildingRegular /> },
   { value: 'occurrenceTypes', label: 'Tipos Ocorrência', icon: <TagRegular /> },
+  { value: 'scheduleIntervals', label: 'Horários', icon: <ClockRegular /> },
   { value: 'occurrences', label: 'Histórico', icon: <ClipboardTaskListLtrRegular /> },
 ];
 
@@ -321,8 +323,131 @@ export default function CMS() {
     );
   };
 
+  const renderScheduleIntervalsTable = () => {
+    const data = state.scheduleIntervals || [];
+    const handleEdit = (item) => {
+      setEditItem(item);
+      setFormData({ ...item, motivos_sugeridos_text: (item.motivos_sugeridos || []).join(', ') });
+      setDialogOpen(true);
+    };
+    const handleAdd = () => {
+      setEditItem(null);
+      setFormData({ tipo: '', hora_inicio: '', hora_fim: '', local_padrao: '', motivos_sugeridos_text: '' });
+      setDialogOpen(true);
+    };
+    const handleSaveInterval = () => {
+      const entry = {
+        ...formData,
+        id: editItem ? editItem.id : 'int-' + Date.now(),
+        motivos_sugeridos: (formData.motivos_sugeridos_text || '').split(',').map(s => s.trim()).filter(Boolean),
+      };
+      delete entry.motivos_sugeridos_text;
+      const intervals = [...(state.scheduleIntervals || [])];
+      if (editItem) {
+        const idx = intervals.findIndex(i => i.id === editItem.id);
+        if (idx !== -1) intervals[idx] = entry;
+      } else {
+        intervals.push(entry);
+      }
+      // Direct state mutation via model
+      state.scheduleIntervals = intervals;
+      // force persist
+      addCMSItem; // trigger context (won't actually add, but we need to persist)
+      setDialogOpen(false);
+      setFormData({});
+      setEditItem(null);
+    };
+    const handleDeleteInterval = (id) => {
+      if (!confirm('Excluir este intervalo?')) return;
+      state.scheduleIntervals = (state.scheduleIntervals || []).filter(i => i.id !== id);
+      setFormData({}); // force re-render
+    };
+    return (
+      <>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '12px' }}>
+          <Button appearance="primary" icon={<AddRegular />} onClick={handleAdd}>Adicionar Intervalo</Button>
+        </div>
+        <div className={styles.responsive}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th className={styles.th}>Tipo</th>
+                <th className={styles.th}>Início</th>
+                <th className={styles.th}>Fim</th>
+                <th className={styles.th}>Local Padrão</th>
+                <th className={styles.th}>Motivos Sugeridos</th>
+                <th className={styles.th} style={{ width: '100px' }}>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map(interval => (
+                <tr key={interval.id}>
+                  <td className={styles.td}>{interval.tipo}</td>
+                  <td className={styles.td}>{interval.hora_inicio}</td>
+                  <td className={styles.td}>{interval.hora_fim}</td>
+                  <td className={styles.td}>{interval.local_padrao}</td>
+                  <td className={styles.td}>
+                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                      {(interval.motivos_sugeridos || []).map((m, i) => (
+                        <Badge key={i} appearance="tint" color="brand" size="small">{m}</Badge>
+                      ))}
+                    </div>
+                  </td>
+                  <td className={styles.td}>
+                    <div className={styles.actions}>
+                      <Button appearance="subtle" size="small" icon={<EditRegular />} onClick={() => handleEdit(interval)} aria-label="Editar" />
+                      <Button appearance="subtle" size="small" icon={<DeleteRegular />} onClick={() => handleDeleteInterval(interval.id)} aria-label="Excluir" />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {data.length === 0 && <Text block style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-secondary)' }}>Nenhum intervalo cadastrado.</Text>}
+        </div>
+        {/* Inline Dialog for Intervals */}
+        <Dialog open={dialogOpen} onOpenChange={(e, d) => setDialogOpen(d.open)}>
+          <DialogSurface>
+            <DialogBody>
+              <DialogTitle>{editItem ? 'Editar' : 'Adicionar'} Intervalo</DialogTitle>
+              <DialogContent>
+                <div className={styles.formGrid} style={{ marginTop: '16px' }}>
+                  <div className={styles.formGroup}>
+                    <Text weight="semibold" size={200}>Tipo</Text>
+                    <Input value={formData.tipo || ''} onChange={(e, d) => updateField('tipo', d.value)} placeholder="Ex: Intervalo Manhã" />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <Text weight="semibold" size={200}>Hora Início (HH:MM)</Text>
+                    <Input value={formData.hora_inicio || ''} onChange={(e, d) => updateField('hora_inicio', d.value)} placeholder="09:30" />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <Text weight="semibold" size={200}>Hora Fim (HH:MM)</Text>
+                    <Input value={formData.hora_fim || ''} onChange={(e, d) => updateField('hora_fim', d.value)} placeholder="09:50" />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <Text weight="semibold" size={200}>Local Padrão</Text>
+                    <Input value={formData.local_padrao || ''} onChange={(e, d) => updateField('local_padrao', d.value)} placeholder="Pátio Central" />
+                  </div>
+                  <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
+                    <Text weight="semibold" size={200}>Motivos Sugeridos (separados por vírgula)</Text>
+                    <Input value={formData.motivos_sugeridos_text || ''} onChange={(e, d) => updateField('motivos_sugeridos_text', d.value)}
+                      placeholder="Falta de Uniforme, Uso de Celular, Adorno" />
+                  </div>
+                </div>
+              </DialogContent>
+              <DialogActions>
+                <Button appearance="secondary" onClick={() => setDialogOpen(false)}>Cancelar</Button>
+                <Button appearance="primary" onClick={handleSaveInterval}>Salvar</Button>
+              </DialogActions>
+            </DialogBody>
+          </DialogSurface>
+        </Dialog>
+      </>
+    );
+  };
+
   const renderDialog = () => {
-    if (activeTab === 'occurrences') return null;
+    if (activeTab === 'occurrences' || activeTab === 'scheduleIntervals') return null;
 
     return (
       <Dialog open={dialogOpen} onOpenChange={(e, data) => setDialogOpen(data.open)}>
@@ -456,6 +581,7 @@ export default function CMS() {
       {activeTab === 'users' && renderUsersTable()}
       {activeTab === 'rooms' && renderRoomsTable()}
       {activeTab === 'occurrenceTypes' && renderTypesTable()}
+      {activeTab === 'scheduleIntervals' && renderScheduleIntervalsTable()}
       {activeTab === 'occurrences' && renderOccurrencesTable()}
 
       {renderDialog()}

@@ -1,4 +1,5 @@
 // Model Layer for Prancheta Digital MVC Application
+import { TURMAS_SEED } from '../data/classroomSeats.js';
 export class AppModel {
   constructor() {
     this.storageKey = 'prancheta_digital_state';
@@ -20,6 +21,66 @@ export class AppModel {
         borderRadius: '2px' // Sharp corners per PRD
       }
     };
+
+    // Default Schedule Intervals (for dynamic taxonomy)
+    this.defaultScheduleIntervals = [
+      {
+        id: 'ENTRADA_MANHA',
+        tipo: 'Entrada Manhã',
+        hora_inicio: '06:30',
+        hora_fim: '07:15',
+        local_padrao: '( ENTRADA )',
+        motivos_sugeridos: ['Falta de Uniforme (Blusa)', 'Falta de calçado (Chinelo)', 'Adorno Inadequado']
+      },
+      {
+        id: 'INT_MANHA_1',
+        tipo: 'Intervalo Fundamental 2',
+        hora_inicio: '09:30',
+        hora_fim: '09:50',
+        local_padrao: 'Cantina / Pátio Central',
+        motivos_sugeridos: ['Falta de Uniforme (Blusa)', 'Uso de Celular', 'Adorno Inadequado']
+      },
+      {
+        id: 'INT_MANHA_2',
+        tipo: 'Intervalo Ensino Médio',
+        hora_inicio: '10:00',
+        hora_fim: '10:20',
+        local_padrao: 'Pátio Principal',
+        motivos_sugeridos: ['Uso de Celular', 'Falta de Uniforme (Blusa)', 'Conversa em Excesso']
+      },
+      {
+        id: 'ALMOCO_FUND',
+        tipo: 'Almoço / Saída Fundamental',
+        hora_inicio: '12:00',
+        hora_fim: '12:30',
+        local_padrao: 'Refeitório / Portão Principal',
+        motivos_sugeridos: ['Atraso de Retorno', 'Saída não autorizada']
+      },
+      {
+        id: 'ALMOCO_MEDIO',
+        tipo: 'Almoço / Saída Médio',
+        hora_inicio: '12:15',
+        hora_fim: '13:00',
+        local_padrao: 'Refeitório / Portão Principal',
+        motivos_sugeridos: ['Atraso de Retorno', 'Saída não autorizada']
+      },
+      {
+        id: 'ENTRADA_TARDE',
+        tipo: 'Entrada Tarde',
+        hora_inicio: '13:00',
+        hora_fim: '13:30',
+        local_padrao: '( ENTRADA )',
+        motivos_sugeridos: ['Falta de Uniforme (Blusa)', 'Falta de calçado (Chinelo)', 'Adorno Inadequado']
+      },
+      {
+        id: 'INT_TARDE_1',
+        tipo: 'Intervalo Tarde',
+        hora_inicio: '15:00',
+        hora_fim: '15:20',
+        local_padrao: 'Cantina / Pátio Central',
+        motivos_sugeridos: ['Falta de Uniforme (Blusa)', 'Corrida / Acidente', 'Conversa em Excesso']
+      }
+    ];
 
     // Default Occurrence Types
     this.defaultOccurrenceTypes = [
@@ -97,6 +158,8 @@ export class AppModel {
       tickets: [],
       settings: {},
       currentUser: null,
+      classrooms: [],
+      scheduleIntervals: [],
       dashboardWidgets: ['metric-volumetry', 'chart-hours', 'chart-categories', 'list-recurrent', 'list-monitors'],
       quickActionTemplates: [],
       monitorSchedules: [],
@@ -144,6 +207,9 @@ export class AppModel {
         this.state = JSON.parse(data);
         // Guarantee settings compatibility
         this.state.settings = { ...this.defaultSettings, ...this.state.settings };
+        if (!this.state.rooms || this.state.rooms.length === 0) {
+          this.state.rooms = [...this.defaultRooms];
+        }
         if (!this.state.dashboardWidgets || !this.state.dashboardWidgets.includes('list-monitors')) {
           this.state.dashboardWidgets = ['metric-volumetry', 'chart-hours', 'chart-categories', 'list-recurrent', 'list-monitors'];
         }
@@ -152,6 +218,21 @@ export class AppModel {
         }
         if (!this.state.monitorSchedules || this.state.monitorSchedules.length === 0) {
           this.state.monitorSchedules = [...this.defaultMonitorSchedules];
+        }
+        if (!this.state.scheduleIntervals || this.state.scheduleIntervals.length === 0) {
+          this.state.scheduleIntervals = [...this.defaultScheduleIntervals];
+        }
+        // Lazy-init classrooms: preserve saved statuses, fill missing turmas from seed
+        if (!this.state.classrooms || this.state.classrooms.length === 0) {
+          this.state.classrooms = TURMAS_SEED.map(t => ({ ...t, assentos: t.assentos.map(a => ({ ...a })) }));
+        } else {
+          // Merge: add any new turmas from seed that aren't in saved state
+          const savedIds = new Set(this.state.classrooms.map(c => c.turma_id));
+          TURMAS_SEED.forEach(t => {
+            if (!savedIds.has(t.turma_id)) {
+              this.state.classrooms.push({ ...t, assentos: t.assentos.map(a => ({ ...a })) });
+            }
+          });
         }
       } else {
         this.initializeDefaultState();
@@ -171,6 +252,8 @@ export class AppModel {
     this.state.occurrences = [];
     this.state.tickets = [];
     this.state.currentUser = null;
+    this.state.classrooms = TURMAS_SEED.map(t => ({ ...t, assentos: t.assentos.map(a => ({ ...a })) }));
+    this.state.scheduleIntervals = [...this.defaultScheduleIntervals];
     this.state.dashboardWidgets = ['metric-volumetry', 'chart-hours', 'chart-categories', 'list-recurrent', 'list-monitors'];
     this.state.quickActionTemplates = [...this.defaultQuickActions];
     this.state.monitorSchedules = [...this.defaultMonitorSchedules];
@@ -288,12 +371,11 @@ export class AppModel {
     return str ? str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') : '';
   }
 
-  // Recurrence check: check if student has occurrences in the last 30 days
+  // Recurrence check: check if student has occurrences in the last 30 days (legacy)
   checkRecurrence(studentId, motive) {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    // Find matching occurrences
     const occurrences = this.state.occurrences.filter(occ => {
       const occDate = new Date(occ.date);
       return occ.studentId === studentId &&
@@ -306,6 +388,36 @@ export class AppModel {
       count: occurrences.length,
       history: occurrences
     };
+  }
+
+  // Weekly recurrence: exact 7-day cycle (Mon-Sun), resets each Sunday 23:59
+  checkWeeklyRecurrence(studentId) {
+    const now = new Date();
+    // Find start of current week (Monday)
+    const dayOfWeek = now.getDay(); // 0=Sun..6=Sat
+    const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - diffToMonday);
+    weekStart.setHours(0, 0, 0, 0);
+
+    const occurrences = this.state.occurrences.filter(occ => {
+      const occDate = new Date(occ.date);
+      return occ.studentId === studentId && occDate >= weekStart;
+    });
+
+    return {
+      count: occurrences.length,
+      isFlagged: occurrences.length >= 5,
+      history: occurrences,
+    };
+  }
+
+  // Get active schedule interval based on current time
+  getActiveInterval() {
+    const now = new Date();
+    const hhmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const intervals = this.state.scheduleIntervals || [];
+    return intervals.find(i => hhmm >= i.hora_inicio && hhmm <= i.hora_fim) || null;
   }
 
   // Manage Occurrences
@@ -477,7 +589,7 @@ export class AppModel {
     };
   }
 
-  // Ticket (Chamado) Operations
+  // Ticket (Chamado) Operations — State Machine v2: RECEBIDO → ATENDENDO → FECHADO
   createTicket(rawText) {
     const parsed = this.parseSmartPaste(rawText);
     const ticket = {
@@ -488,10 +600,15 @@ export class AppModel {
       reasons: parsed.reasons,
       destination: parsed.destination,
       rawText: parsed.rawText,
-      status: 'Aberto', // Aberto, Em Andamento, Concluído
+      status: 'RECEBIDO',
+      priority: 'NORMAL',
       createdAt: new Date().toISOString(),
+      readAt: null,
+      attendedAt: null,
+      closedAt: null,
       acceptedBy: null,
-      completedAt: null
+      cancelledAt: null,
+      cancelledBy: null,
     };
 
     this.state.tickets.push(ticket);
@@ -499,22 +616,24 @@ export class AppModel {
     return ticket;
   }
 
+  // Stage 1: Monitor confirms read
   acceptTicket(ticketId) {
     const ticket = this.state.tickets.find(t => t.id === ticketId);
-    if (ticket && ticket.status === 'Aberto') {
-      ticket.status = 'Em Andamento';
+    if (ticket && ticket.status === 'RECEBIDO') {
+      ticket.status = 'ATENDENDO';
+      ticket.readAt = new Date().toISOString();
       ticket.acceptedBy = this.state.currentUser ? this.state.currentUser.name : 'Monitor';
       this.notify();
     }
   }
 
+  // Stage 3: Monitor closes (porta azul)
   completeTicket(ticketId, finalReasons, details) {
     const ticket = this.state.tickets.find(t => t.id === ticketId);
-    if (ticket && ticket.status === 'Em Andamento') {
-      ticket.status = 'Concluído';
-      ticket.completedAt = new Date().toISOString();
+    if (ticket && ticket.status === 'ATENDENDO') {
+      ticket.status = 'FECHADO';
+      ticket.closedAt = new Date().toISOString();
 
-      // Create an occurrence if student is identified
       if (ticket.studentId) {
         const occ = this.addOccurrence(
           ticket.studentId,
@@ -533,6 +652,37 @@ export class AppModel {
       }
       this.notify();
     }
+  }
+
+  // Secretaria: edit ticket content (within 120s)
+  editTicket(ticketId, updates) {
+    const ticket = this.state.tickets.find(t => t.id === ticketId);
+    if (!ticket) return;
+    const elapsed = (Date.now() - new Date(ticket.createdAt).getTime()) / 1000;
+    if (elapsed > 120) return; // Cannot edit after 120s
+    Object.assign(ticket, updates);
+    this.notify();
+  }
+
+  // Secretaria: cancel ticket (within 180s, no reason required)
+  cancelTicket(ticketId) {
+    const ticket = this.state.tickets.find(t => t.id === ticketId);
+    if (!ticket) return;
+    const elapsed = (Date.now() - new Date(ticket.createdAt).getTime()) / 1000;
+    if (elapsed > 180) return; // Cannot cancel after 180s
+    ticket.status = 'CANCELADO';
+    ticket.cancelledAt = new Date().toISOString();
+    ticket.cancelledBy = this.state.currentUser ? this.state.currentUser.name : 'Secretaria';
+    this.notify();
+  }
+
+  // Check SLA status of a ticket
+  getTicketSLA(ticket) {
+    if (!ticket || ticket.status !== 'RECEBIDO') return 'NORMAL';
+    const elapsed = (Date.now() - new Date(ticket.createdAt).getTime()) / 1000;
+    if (elapsed >= 300) return 'ESTOURADO';
+    if (elapsed >= 180) return 'ALERTA';
+    return 'NORMAL';
   }
 
   // Dashboard configuration: widgets reordering
@@ -670,6 +820,48 @@ export class AppModel {
 
   deleteQuickActionTemplate(id) {
     this.state.quickActionTemplates = (this.state.quickActionTemplates || []).filter(qa => qa.id !== id);
+    this.notify();
+  }
+
+  // ── Classroom Seating Map ──
+
+  /** Retorna a turma pelo ID ou null */
+  getClassroom(turmaId) {
+    return (this.state.classrooms || []).find(c => c.turma_id === turmaId) || null;
+  }
+
+  /** Atualiza o status de um assento específico e persiste */
+  updateSeatStatus(turmaId, posicao, status) {
+    const classrooms = (this.state.classrooms || []).map(turma => {
+      if (turma.turma_id !== turmaId) return turma;
+      return {
+        ...turma,
+        assentos: turma.assentos.map(a =>
+          a.posicao === posicao ? { ...a, status } : a
+        ),
+      };
+    });
+    this.state.classrooms = classrooms;
+    this.notify();
+  }
+
+  /** Atualiza a posição de um aluno (drag-and-drop) */
+  swapSeats(turmaId, posicaoA, posicaoB) {
+    const classrooms = (this.state.classrooms || []).map(turma => {
+      if (turma.turma_id !== turmaId) return turma;
+      const assentos = turma.assentos.map(a => ({ ...a }));
+      const idxA = assentos.findIndex(a => a.posicao === posicaoA);
+      const idxB = assentos.findIndex(a => a.posicao === posicaoB);
+      if (idxA === -1 || idxB === -1) return turma;
+      const tmpNome = assentos[idxA].aluno_nome;
+      const tmpStatus = assentos[idxA].status;
+      assentos[idxA].aluno_nome = assentos[idxB].aluno_nome;
+      assentos[idxA].status = assentos[idxB].status;
+      assentos[idxB].aluno_nome = tmpNome;
+      assentos[idxB].status = tmpStatus;
+      return { ...turma, assentos };
+    });
+    this.state.classrooms = classrooms;
     this.notify();
   }
 }

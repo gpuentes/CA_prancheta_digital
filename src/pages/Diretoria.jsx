@@ -149,9 +149,9 @@ export default function Diretoria() {
     prevTicketCountRef.current = currentCount;
   }, [state.tickets?.length]);
 
-  const openTickets = (state.tickets || []).filter(t => t.status === 'Aberto');
-  const progressTickets = (state.tickets || []).filter(t => t.status === 'Em Andamento');
-  const doneTickets = (state.tickets || []).filter(t => t.status === 'Concluído').slice(-5).reverse();
+  const openTickets = (state.tickets || []).filter(t => t.status === 'RECEBIDO');
+  const progressTickets = (state.tickets || []).filter(t => t.status === 'ATENDENDO');
+  const doneTickets = (state.tickets || []).filter(t => t.status === 'FECHADO').slice(-5).reverse();
 
   const handleAccept = (id) => {
     acceptTicket(id);
@@ -291,7 +291,7 @@ export default function Diretoria() {
                     {ticket.classId} • {ticket.reasons?.join(', ')}
                   </Text>
                   <Text size={100} style={{ color: 'var(--color-text-secondary)' }}>
-                    Concluído: {ticket.completedAt ? new Date(ticket.completedAt).toLocaleString('pt-BR') : '—'}
+                    Concluído: {ticket.closedAt ? new Date(ticket.closedAt).toLocaleString('pt-BR') : '—'}
                   </Text>
                 </div>
               </Card>

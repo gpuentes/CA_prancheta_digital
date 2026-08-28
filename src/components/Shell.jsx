@@ -27,6 +27,8 @@ import {
   NavigationRegular,
   BoardRegular,
   BoardFilled,
+  TableRegular,
+  TableFilled,
 } from '@fluentui/react-icons';
 
 const useStyles = makeStyles({
@@ -188,11 +190,12 @@ const useStyles = makeStyles({
 
 const TAB_CONFIG = {
   dashboard: { label: 'Dashboard', path: '/dashboard', icon: <BoardRegular />, iconActive: <BoardFilled />, roles: ['diretor', 'admin'] },
-  patio:     { label: 'Pátio', path: '/patio', icon: <ClipboardTaskListLtrRegular />, iconActive: <ClipboardTaskListLtrFilled />, roles: ['monitor', 'secretaria', 'diretor', 'admin'] },
-  chamados:  { label: 'Chamados', path: '/chamados', icon: <AlertRegular />, iconActive: <AlertFilled />, roles: ['monitor', 'secretaria', 'diretor', 'admin'] },
+  patio: { label: 'Pátio', path: '/patio', icon: <ClipboardTaskListLtrRegular />, iconActive: <ClipboardTaskListLtrFilled />, roles: ['monitor', 'secretaria', 'diretor', 'admin'] },
+  chamados: { label: 'Chamados', path: '/chamados', icon: <AlertRegular />, iconActive: <AlertFilled />, roles: ['monitor', 'secretaria', 'diretor', 'admin'] },
   diretoria: { label: 'Campainha', path: '/diretoria', icon: <AlertRegular />, iconActive: <AlertFilled />, roles: ['secretaria', 'diretor', 'admin'] },
-  cms:       { label: 'Cadastros', path: '/cms', icon: <PeopleRegular />, iconActive: <PeopleFilled />, roles: ['secretaria', 'diretor', 'admin'] },
-  settings:  { label: 'Configurações', path: '/settings', icon: <SettingsRegular />, iconActive: <SettingsFilled />, roles: ['diretor', 'admin'] },
+  mapaSala: { label: 'Mapa de Sala', path: '/mapa-sala', icon: <TableRegular />, iconActive: <TableFilled />, roles: ['sala', 'monitor', 'secretaria', 'diretor', 'admin'] },
+  cms: { label: 'Cadastros', path: '/cms', icon: <PeopleRegular />, iconActive: <PeopleFilled />, roles: ['secretaria', 'diretor', 'admin'] },
+  settings: { label: 'Configurações', path: '/settings', icon: <SettingsRegular />, iconActive: <SettingsFilled />, roles: ['diretor', 'admin'] },
 };
 
 const ROLE_LABELS = {

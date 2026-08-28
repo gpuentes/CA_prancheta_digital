@@ -10,6 +10,7 @@ import Diretoria from './pages/Diretoria.jsx';
 import CMS from './pages/CMS.jsx';
 import Settings from './pages/Settings.jsx';
 import TerminalSala from './pages/TerminalSala.jsx';
+import MapaSala from './pages/MapaSala.jsx';
 
 // Route guard: redirects to /login if not authenticated
 function ProtectedRoute({ children }) {
@@ -50,6 +51,7 @@ function App() {
             <Route path="/chamados" element={<Chamados />} />
             <Route path="/diretoria" element={<Diretoria />} />
             <Route path="/cms" element={<CMS />} />
+            <Route path="/mapa-sala" element={<MapaSala />} />
             <Route path="/settings" element={<Settings />} />
           </Route>
 
