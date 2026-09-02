@@ -129,10 +129,15 @@ export default function AbaOcorrencia() {
   const timeInfo = useMemo(() => {
     const now = new Date();
     const hours = now.getHours();
-    const currentShift = hours < 13 ? 'manha' : 'tarde';
+    let currentShift = hours < 13 ? 'manha' : 'tarde';
     const isPeakMode = devForcePeak !== null
       ? devForcePeak
       : !!activeInterval && (activeInterval.id.startsWith('ENTRADA'));
+      
+    if (devForcePeak) {
+      currentShift = 'manha';
+    }
+    
     return { currentShift, isPeakMode };
   }, [devForcePeak, activeInterval]);
 
@@ -383,7 +388,7 @@ export default function AbaOcorrencia() {
                   onClick={() => setSelectedLocation(activeInterval.local_padrao)}>
                   📍 {activeInterval.local_padrao} ({activeInterval.tipo})
                 </button>
-                {commonLocations.filter(l => l.name !== activeInterval.local_padrao).slice(0, 4).map(loc => (
+                {!timeInfo.isPeakMode && commonLocations.filter(l => l.name !== activeInterval.local_padrao).slice(0, 4).map(loc => (
                   <button key={loc.id}
                     className={`${styles.locationChip} ${selectedLocation === loc.name ? styles.locationChipSelected : ''}`}
                     onClick={() => setSelectedLocation(loc.name)}>

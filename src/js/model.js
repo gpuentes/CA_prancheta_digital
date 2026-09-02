@@ -105,8 +105,8 @@ export class AppModel {
       { id: 's7', firstName: 'Lorenzo', lastName: 'Santos', classId: '07 MA', photoSeed: 'lorenzo' },
       { id: 's8', firstName: 'Miguel', lastName: 'Assis', classId: '03 EMB', photoSeed: 'miguel' },
       { id: 's9', firstName: 'Ana', lastName: 'Costa', classId: '07 MA', photoSeed: 'ana' }, // Recurrent student
-      { id: 's10', firstName: 'Kethelyn', lastName: 'Camila', classId: '09 MC', photoSeed: 'kethelyn' },
-      { id: 's11', firstName: 'Maria', lastName: 'Clara', classId: '07 MA', photoSeed: 'maria' },
+      { id: 's10', firstName: 'Kethelyn', lastName: 'Camila', classId: '09 MC', photoSeed: 'kethelyn', isEletiva: true }, // Aluno de Eletiva
+      { id: 's11', firstName: 'Maria', lastName: 'Clara', classId: '07 MA', photoSeed: 'maria', isEletiva: true }, // Aluno de Eletiva
       { id: 's12', firstName: 'Sophia', lastName: 'Carvalho', classId: '09 MA', photoSeed: 'sophia' },
       { id: 's13', firstName: 'Joshua', lastName: 'Guimarães', classId: '03 EMB', photoSeed: 'joshua' },
       { id: 's14', firstName: 'Ricardo', lastName: 'Leão', classId: '02 EMA', photoSeed: 'ricardo' },
@@ -353,7 +353,7 @@ export class AppModel {
         detectedShift: studentShift,
         isEletiva,
       };
-    }).sort((a, b) => (a.isEletiva === b.isEletiva ? 0 : a.isEletiva ? 1 : -1));
+    }).filter(s => currentShift === 'todos' || s.detectedShift === currentShift || s.isEletiva).sort((a, b) => (a.isEletiva === b.isEletiva ? 0 : a.isEletiva ? 1 : -1));
   }
 
   // Get occurrences recorded today for a given student

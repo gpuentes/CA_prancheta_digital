@@ -88,6 +88,7 @@ export default function AbaCampainha() {
 
   const [rawText, setRawText] = useState('');
   const [ticketCreated, setTicketCreated] = useState(null);
+  const [ticketCountdown, setTicketCountdown] = useState(0);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [slaModal, setSlaModal] = useState(null);
   const audioRef = useRef(null);
@@ -133,13 +134,37 @@ export default function AbaCampainha() {
     return () => clearInterval(slaIntervalRef.current);
   }, [recebidos, getTicketSLA, isMonitor]);
 
+  // Success message countdown
+  useEffect(() => {
+    let interval;
+    if (ticketCountdown > 0) {
+      interval = setInterval(() => {
+        setTicketCountdown(prev => prev - 1);
+      }, 1000);
+    } else if (ticketCountdown === 0 && ticketCreated) {
+      setTicketCreated(null);
+    }
+    return () => clearInterval(interval);
+  }, [ticketCountdown, ticketCreated]);
+
   const handleQuickClick = (qa) => { setRawText(qa.template); setTicketCreated(null); };
 
   const handleSend = () => {
     if (!rawText.trim()) return;
     const ticket = createTicket(rawText.trim());
+    ticket.rawInput = rawText.trim();
     setTicketCreated(ticket);
     setRawText('');
+    setTicketCountdown(120);
+  };
+
+  const handleEditLast = () => {
+    if (ticketCreated) {
+      cancelTicket(ticketCreated.id);
+      setRawText(ticketCreated.rawInput || `${ticketCreated.studentName} — ${ticketCreated.reasons?.join(', ')}`);
+      setTicketCreated(null);
+      setTicketCountdown(0);
+    }
   };
 
   const handleSlaAccept = useCallback((ticketId) => {
@@ -182,7 +207,7 @@ export default function AbaCampainha() {
         <>
           <Card appearance="outline" style={{ padding: '20px' }}>
             <div className={styles.sectionTitle}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <AlertRegular style={{ color: 'var(--color-brand)' }} />
                 <Title3>Botões de Ação Rápida (Campainha)</Title3>
               </div>
@@ -219,12 +244,22 @@ export default function AbaCampainha() {
               </Button>
             </div>
             {ticketCreated && (
-              <div style={{ marginTop: '8px', padding: '12px', backgroundColor: 'rgba(16,124,65,0.1)', borderRadius: '6px', border: '1px solid var(--color-success)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <CheckmarkCircleRegular style={{ color: 'var(--color-success)', fontSize: '20px' }} />
-                <div>
-                  <Text weight="semibold" style={{ color: 'var(--color-success)' }}>Chamado Disparado!</Text>
-                  <Text block size={200} style={{ color: 'var(--color-text-secondary)' }}>
-                    {ticketCreated.studentName} — {ticketCreated.reasons?.join(', ')}
+              <div style={{ marginTop: '8px', padding: '12px', backgroundColor: 'rgba(16,124,65,0.1)', borderRadius: '6px', border: '1px solid var(--color-success)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <CheckmarkCircleRegular style={{ color: 'var(--color-success)', fontSize: '20px' }} />
+                  <div>
+                    <Text weight="semibold" style={{ color: 'var(--color-success)' }}>Chamado Disparado!</Text>
+                    <Text block size={200} style={{ color: 'var(--color-text-secondary)' }}>
+                      {ticketCreated.studentName} — {ticketCreated.reasons?.join(', ')}
+                    </Text>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <Button appearance="transparent" onClick={handleEditLast} style={{ color: 'var(--color-brand)' }}>
+                    EDITAR
+                  </Button>
+                  <Text size={200} style={{ color: 'var(--color-text-secondary)' }}>
+                    {'>'} TIMER, {ticketCountdown} segundo{ticketCountdown !== 1 ? 's' : ''}
                   </Text>
                 </div>
               </div>
