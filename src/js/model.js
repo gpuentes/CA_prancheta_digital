@@ -472,7 +472,7 @@ export class AppModel {
     let detectedStudent = null;
     let detectedClass = null;
     let detectedReasons = [];
-    let detectedDestination = 'Coordenação'; // Default destination
+    let detectedDestination = 'Disciplinar'; // Default destination
 
     // Helper to check if string contains word with boundary
     const containsWord = (source, target) => {
@@ -539,7 +539,11 @@ export class AppModel {
     }
 
     // 3. Destination mapping
-    if (cleanText.includes('coordenacao') || cleanText.includes('coordena')) {
+    if (cleanText.includes('disciplinar') || cleanText.includes('disciplinador')) {
+      detectedDestination = 'Disciplinar';
+    } else if (cleanText.includes('secretaria')) {
+      detectedDestination = 'Secretaria';
+    } else if (cleanText.includes('coordenacao') || cleanText.includes('coordena')) {
       detectedDestination = 'Coordenação';
     } else if (cleanText.includes('orientacao') || cleanText.includes('orienta')) {
       detectedDestination = 'Orientação';

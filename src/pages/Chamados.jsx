@@ -141,7 +141,7 @@ export default function Chamados() {
   const [pasteText, setPasteText] = useState('');
   const [preview, setPreview] = useState(null);
   const [selectedReasons, setSelectedReasons] = useState([]);
-  const [destination, setDestination] = useState('Coordenação');
+  const [destination, setDestination] = useState('Disciplinar');
   const [syncCountdown, setSyncCountdown] = useState(30);
 
   // Sync timer
@@ -160,7 +160,7 @@ export default function Chamados() {
     const result = parseSmartPaste(pasteText);
     setPreview(result);
     setSelectedReasons(result.reasons || []);
-    setDestination(result.destination || 'Coordenação');
+    setDestination(result.destination || 'Disciplinar');
   };
 
   const handleConfirm = () => {
@@ -220,7 +220,7 @@ export default function Chamados() {
   return (
     <div className={styles.container}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-        <Title2>Chamados</Title2>
+        <Title2>Ocorrência de Sala</Title2>
         <div className={styles.syncBar}>
           <ArrowSyncRegular />
           <span>Sincronização em {syncCountdown}s</span>
@@ -260,7 +260,7 @@ export default function Chamados() {
       {/* ─── Preview ─── */}
       {preview && (
         <Card className={styles.previewCard} appearance="outline">
-          <Title3>Pré-visualização do Chamado</Title3>
+          <Title3>Pré-visualização da Ocorrência</Title3>
           <div className={styles.previewGrid}>
             <div className={styles.previewField}>
               <Text weight="semibold" size={200}>Aluno Identificado</Text>
@@ -273,10 +273,11 @@ export default function Chamados() {
             <div className={styles.previewField}>
               <Text weight="semibold" size={200}>Destino</Text>
               <Select value={destination} onChange={(e, data) => setDestination(data.value)} id="smart-paste-destination">
+                <option>Disciplinar</option>
                 <option>Coordenação</option>
                 <option>Orientação</option>
                 <option>Diretoria</option>
-                <option>Ir embora</option>
+                <option>Secretaria</option>
               </Select>
             </div>
           </div>
@@ -295,7 +296,7 @@ export default function Chamados() {
           </div>
           <div className={styles.actions}>
             <Button appearance="secondary" icon={<DismissRegular />} onClick={handleCancel}>Cancelar</Button>
-            <Button appearance="primary" icon={<CheckmarkRegular />} onClick={handleConfirm}>Confirmar Chamado</Button>
+            <Button appearance="primary" icon={<CheckmarkRegular />} onClick={handleConfirm}>Confirmar Ocorrência</Button>
           </div>
         </Card>
       )}
