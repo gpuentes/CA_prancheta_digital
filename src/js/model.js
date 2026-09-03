@@ -126,7 +126,11 @@ export class AppModel {
       { id: 'u2', name: 'Ana Paula', role: 'monitor', login: 'anapaula', password: '123', loginWindows: 'esc.anapaula', active: true },
       { id: 'u3', name: 'Renata Costa', role: 'secretaria', login: 'renata', password: '123', loginWindows: 'esc.renata', active: true },
       { id: 'u4', name: 'Marcelo Dias', role: 'diretor', login: 'marcelo', password: '123', loginWindows: 'esc.marcelo', active: true },
-      { id: 'u5', name: 'Terminal Sala', role: 'sala', login: 'sala', password: '123', loginWindows: 'esc.sala', active: true }
+      { id: 'u5', name: 'Terminal 20', role: 'terminal', login: '20', password: '123', loginWindows: 'esc.20', active: true },
+      { id: 'u6', name: 'Terminal 21', role: 'terminal', login: '21', password: '123', loginWindows: 'esc.21', active: true },
+      { id: 'u7', name: 'Terminal 22', role: 'terminal', login: '22', password: '123', loginWindows: 'esc.22', active: true },
+      { id: 'u8', name: 'Terminal 23', role: 'terminal', login: '23', password: '123', loginWindows: 'esc.23', active: true },
+      { id: 'u9', name: 'Terminal 24', role: 'terminal', login: '24', password: '123', loginWindows: 'esc.24', active: true }
     ];
 
     // Default Rooms (Salas 09 a 34 + others)

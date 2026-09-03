@@ -193,8 +193,8 @@ const TAB_CONFIG = {
   patio: { label: 'Pátio', path: '/patio', icon: <ClipboardTaskListLtrRegular />, iconActive: <ClipboardTaskListLtrFilled />, roles: ['monitor', 'secretaria', 'diretor', 'admin'] },
   chamados: { label: 'Ocorrência de Sala', path: '/chamados', icon: <AlertRegular />, iconActive: <AlertFilled />, roles: ['monitor', 'secretaria', 'diretor', 'admin'] },
   diretoria: { label: 'Campainha (Geral)', path: '/diretoria', icon: <AlertRegular />, iconActive: <AlertFilled />, roles: ['secretaria', 'diretor', 'admin'] },
-  mapaSala: { label: 'Mapa de Sala', path: '/mapa-sala', icon: <TableRegular />, iconActive: <TableFilled />, roles: ['sala', 'monitor', 'secretaria', 'diretor', 'admin'] },
-  campainhaProfessor: { label: 'Campainha', path: '/campainha', icon: <AlertRegular />, iconActive: <AlertFilled />, roles: ['sala'] },
+  mapaSala: { label: 'Mapa de Sala', path: '/mapa-sala', icon: <TableRegular />, iconActive: <TableFilled />, roles: ['terminal', 'monitor', 'secretaria', 'diretor', 'admin'] },
+  campainhaProfessor: { label: 'Ocorrência SALA', path: '/campainha', icon: <AlertRegular />, iconActive: <AlertFilled />, roles: ['terminal'] },
   cms: { label: 'Cadastros', path: '/cms', icon: <PeopleRegular />, iconActive: <PeopleFilled />, roles: ['secretaria', 'diretor', 'admin'] },
   settings: { label: 'Configurações', path: '/settings', icon: <SettingsRegular />, iconActive: <SettingsFilled />, roles: ['diretor', 'admin'] },
 };
@@ -204,6 +204,7 @@ const ROLE_LABELS = {
   diretor: 'Diretor(a)',
   secretaria: 'Secretaria',
   monitor: 'Monitor(a)',
+  terminal: 'Terminal de Sala',
 };
 
 export default function Shell() {

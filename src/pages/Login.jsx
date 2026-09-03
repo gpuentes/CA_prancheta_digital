@@ -117,7 +117,11 @@ const QUICK_CREDENTIALS = [
   { label: 'Monitor (Ana Paula)', user: 'anapaula', pass: '123', role: 'monitor' },
   { label: 'Secretaria (Renata)', user: 'renata', pass: '123', role: 'secretaria' },
   { label: 'Diretor (Marcelo)', user: 'marcelo', pass: '123', role: 'diretor' },
-  { label: 'Terminal Sala 12', user: 'sala', pass: '123', role: 'sala' },
+  { label: 'Terminal 20', user: '20', pass: '123', role: 'terminal' },
+  { label: 'Terminal 21', user: '21', pass: '123', role: 'terminal' },
+  { label: 'Terminal 22', user: '22', pass: '123', role: 'terminal' },
+  { label: 'Terminal 23', user: '23', pass: '123', role: 'terminal' },
+  { label: 'Terminal 24', user: '24', pass: '123', role: 'terminal' },
 ];
 
 export default function Login() {
@@ -137,7 +141,7 @@ export default function Login() {
     setTimeout(() => {
       const result = login(username, password);
       if (result.success) {
-        if (result.user.role === 'sala') {
+        if (result.user.role === 'terminal') {
           navigate('/mapa-sala');
         } else {
           navigate('/monitor');
@@ -158,7 +162,7 @@ export default function Login() {
     setTimeout(() => {
       const result = login(user, pass);
       if (result.success) {
-        if (result.user.role === 'sala') {
+        if (result.user.role === 'terminal') {
           navigate('/mapa-sala');
         } else {
           navigate('/monitor');

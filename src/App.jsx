@@ -24,7 +24,7 @@ function ProtectedRoute({ children }) {
 function PublicRoute({ children }) {
   const { isAuthenticated, currentUser } = useAuth();
   if (isAuthenticated) {
-    if (currentUser?.role === 'sala') return <Navigate to="/mapa-sala" replace />;
+    if (currentUser?.role === 'terminal') return <Navigate to="/mapa-sala" replace />;
     return <Navigate to="/patio" replace />;
   }
   return children;
