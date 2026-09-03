@@ -138,7 +138,7 @@ export default function Login() {
       const result = login(username, password);
       if (result.success) {
         if (result.user.role === 'sala') {
-          navigate('/terminal');
+          navigate('/mapa-sala');
         } else {
           navigate('/monitor');
         }
@@ -159,7 +159,7 @@ export default function Login() {
       const result = login(user, pass);
       if (result.success) {
         if (result.user.role === 'sala') {
-          navigate('/terminal');
+          navigate('/mapa-sala');
         } else {
           navigate('/monitor');
         }

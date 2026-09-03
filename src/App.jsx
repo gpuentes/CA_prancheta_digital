@@ -11,6 +11,7 @@ import CMS from './pages/CMS.jsx';
 import Settings from './pages/Settings.jsx';
 import TerminalSala from './pages/TerminalSala.jsx';
 import MapaSala from './pages/MapaSala.jsx';
+import CampainhaProfessor from './pages/CampainhaProfessor.jsx';
 
 // Route guard: redirects to /login if not authenticated
 function ProtectedRoute({ children }) {
@@ -23,7 +24,7 @@ function ProtectedRoute({ children }) {
 function PublicRoute({ children }) {
   const { isAuthenticated, currentUser } = useAuth();
   if (isAuthenticated) {
-    if (currentUser?.role === 'sala') return <Navigate to="/terminal" replace />;
+    if (currentUser?.role === 'sala') return <Navigate to="/mapa-sala" replace />;
     return <Navigate to="/patio" replace />;
   }
   return children;
@@ -53,6 +54,7 @@ function App() {
             <Route path="/cms" element={<CMS />} />
             <Route path="/mapa-sala" element={<MapaSala />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/campainha" element={<CampainhaProfessor />} />
           </Route>
 
           {/* Protected: Kiosk Terminal (No Shell) */}

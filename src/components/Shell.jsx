@@ -192,8 +192,9 @@ const TAB_CONFIG = {
   dashboard: { label: 'Dashboard', path: '/dashboard', icon: <BoardRegular />, iconActive: <BoardFilled />, roles: ['diretor', 'admin'] },
   patio: { label: 'Pátio', path: '/patio', icon: <ClipboardTaskListLtrRegular />, iconActive: <ClipboardTaskListLtrFilled />, roles: ['monitor', 'secretaria', 'diretor', 'admin'] },
   chamados: { label: 'Ocorrência de Sala', path: '/chamados', icon: <AlertRegular />, iconActive: <AlertFilled />, roles: ['monitor', 'secretaria', 'diretor', 'admin'] },
-  diretoria: { label: 'Campainha', path: '/diretoria', icon: <AlertRegular />, iconActive: <AlertFilled />, roles: ['secretaria', 'diretor', 'admin'] },
+  diretoria: { label: 'Campainha (Geral)', path: '/diretoria', icon: <AlertRegular />, iconActive: <AlertFilled />, roles: ['secretaria', 'diretor', 'admin'] },
   mapaSala: { label: 'Mapa de Sala', path: '/mapa-sala', icon: <TableRegular />, iconActive: <TableFilled />, roles: ['sala', 'monitor', 'secretaria', 'diretor', 'admin'] },
+  campainhaProfessor: { label: 'Campainha', path: '/campainha', icon: <AlertRegular />, iconActive: <AlertFilled />, roles: ['sala'] },
   cms: { label: 'Cadastros', path: '/cms', icon: <PeopleRegular />, iconActive: <PeopleFilled />, roles: ['secretaria', 'diretor', 'admin'] },
   settings: { label: 'Configurações', path: '/settings', icon: <SettingsRegular />, iconActive: <SettingsFilled />, roles: ['diretor', 'admin'] },
 };
