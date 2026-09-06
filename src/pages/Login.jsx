@@ -7,13 +7,13 @@ import {
   Text,
   Input,
   Button,
-  Card,
   Divider,
 } from '@fluentui/react-components';
 import {
   PersonRegular,
   LockClosedRegular,
   ArrowRightRegular,
+  ShieldCheckmarkRegular,
 } from '@fluentui/react-icons';
 
 const useStyles = makeStyles({
@@ -24,6 +24,20 @@ const useStyles = makeStyles({
     minHeight: '100vh',
     backgroundColor: 'var(--bg-app)',
     padding: '20px',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  orb1: {
+    position: 'absolute',
+    top: '-10%', left: '-5%', width: '400px', height: '400px',
+    background: 'radial-gradient(circle, rgba(0,120,212,0.15) 0%, rgba(0,0,0,0) 70%)',
+    borderRadius: '50%', filter: 'blur(40px)', zIndex: 0,
+  },
+  orb2: {
+    position: 'absolute',
+    bottom: '-15%', right: '-10%', width: '500px', height: '500px',
+    background: 'radial-gradient(circle, rgba(16,124,65,0.1) 0%, rgba(0,0,0,0) 70%)',
+    borderRadius: '50%', filter: 'blur(50px)', zIndex: 0,
   },
   card: {
     width: '100%',
@@ -34,14 +48,16 @@ const useStyles = makeStyles({
     gap: '24px',
     backgroundColor: 'var(--bg-card)',
     border: '1px solid var(--border-color-strong)',
-    borderRadius: '12px',
+    borderRadius: '16px',
     boxShadow: 'var(--shadow-lg)',
+    zIndex: 1,
+    backdropFilter: 'blur(20px)',
     animationName: {
       from: { opacity: 0, transform: 'translateY(20px)' },
       to: { opacity: 1, transform: 'translateY(0)' },
     },
-    animationDuration: '0.5s',
-    animationTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    animationDuration: '0.6s',
+    animationTimingFunction: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
     animationFillMode: 'forwards',
   },
   header: {
@@ -82,34 +98,75 @@ const useStyles = makeStyles({
     padding: '8px',
     backgroundColor: 'var(--color-error-bg)',
     borderRadius: '4px',
+    fontWeight: '600',
   },
   quickCreds: {
     backgroundColor: 'var(--color-brand-light)',
     border: '1px solid var(--color-brand)',
-    borderRadius: '6px',
+    borderRadius: '8px',
     padding: '12px',
     fontSize: 'var(--font-size-xs)',
+  },
+  quickCredsSummary: {
+    cursor: 'pointer',
+    fontWeight: '600',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    color: 'var(--color-brand)',
+    userSelect: 'none',
   },
   quickCredsList: {
     listStyle: 'none',
     padding: '0',
-    marginTop: '8px',
+    marginTop: '12px',
     display: 'flex',
     flexDirection: 'column',
-    gap: '4px',
+    gap: '6px',
   },
   quickLink: {
-    color: 'var(--color-brand)',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    color: 'var(--color-text)',
     cursor: 'pointer',
-    fontSize: 'var(--font-size-xs)',
-    padding: '4px 8px',
-    borderRadius: '4px',
-    transition: 'background-color 0.15s ease',
+    fontSize: 'var(--font-size-sm)',
+    padding: '8px 12px',
+    borderRadius: '6px',
+    backgroundColor: 'var(--bg-app)',
+    border: '1px solid var(--border-color)',
+    transition: 'all 0.2s ease',
     ':hover': {
       backgroundColor: 'var(--bg-sidebar-hover)',
-      textDecoration: 'underline',
+      transform: 'translateY(-1px)',
+      boxShadow: 'var(--shadow-sm)',
     },
+    ':focus-visible': {
+      outline: '2px solid var(--color-brand)',
+      outlineOffset: '2px',
+    }
   },
+  roleBadge: {
+    fontSize: '0.65rem',
+    fontWeight: '700',
+    letterSpacing: '0.05em',
+    textTransform: 'uppercase',
+    padding: '2px 8px',
+    borderRadius: '20px',
+    backgroundColor: 'rgba(0,120,212,0.1)',
+    color: 'var(--color-brand)',
+  },
+  submitBtn: {
+    marginTop: '8px',
+    height: '44px',
+    fontWeight: '600',
+    transition: 'all 0.2s ease',
+    ':disabled': {
+      backgroundColor: 'var(--color-brand-light)',
+      color: 'var(--color-brand)',
+      opacity: 0.8,
+    }
+  }
 });
 
 const QUICK_CREDENTIALS = [
@@ -118,10 +175,6 @@ const QUICK_CREDENTIALS = [
   { label: 'Secretaria (Renata)', user: 'renata', pass: '123', role: 'secretaria' },
   { label: 'Diretor (Marcelo)', user: 'marcelo', pass: '123', role: 'diretor' },
   { label: 'Terminal 20', user: '20', pass: '123', role: 'terminal' },
-  { label: 'Terminal 21', user: '21', pass: '123', role: 'terminal' },
-  { label: 'Terminal 22', user: '22', pass: '123', role: 'terminal' },
-  { label: 'Terminal 23', user: '23', pass: '123', role: 'terminal' },
-  { label: 'Terminal 24', user: '24', pass: '123', role: 'terminal' },
 ];
 
 export default function Login() {
@@ -133,88 +186,92 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  // Sanitização Básica OWASP Preventiva
+  const sanitizeInput = (val) => val.trim().replace(/['";=]/g, '');
+
+  const doLogin = (user, pass) => {
+    const cleanUser = sanitizeInput(user);
+    if (!cleanUser || !pass) {
+      setError('Preencha os campos corretamente.');
+      return;
+    }
+
     setError('');
     setLoading(true);
 
     setTimeout(() => {
-      const result = login(username, password);
+      const result = login(cleanUser, pass);
       if (result.success) {
-        if (result.user.role === 'terminal') {
-          navigate('/mapa-sala');
-        } else {
-          navigate('/monitor');
-        }
+        navigate(result.user.role === 'terminal' ? '/mapa-sala' : '/monitor');
       } else {
         setError(result.message);
       }
       setLoading(false);
-    }, 300);
+    }, 400);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    doLogin(username, password);
   };
 
   const handleQuickLogin = (user, pass) => {
     setUsername(user);
     setPassword(pass);
-    setError('');
-    setLoading(true);
-
-    setTimeout(() => {
-      const result = login(user, pass);
-      if (result.success) {
-        if (result.user.role === 'terminal') {
-          navigate('/mapa-sala');
-        } else {
-          navigate('/monitor');
-        }
-      } else {
-        setError(result.message);
-      }
-      setLoading(false);
-    }, 300);
+    doLogin(user, pass);
   };
 
   return (
     <div className={styles.container}>
-      <div className={styles.card}>
-        <div className={styles.header}>
-          <div className={styles.logoCircle}>P</div>
-          <Title1>Prancheta Digital</Title1>
-          <Text style={{ color: 'var(--color-text-secondary)' }}>
-            Sistema de Gestão Escolar
-          </Text>
-        </div>
+      {/* Background elements hidden from screen readers */}
+      <div className={styles.orb1} aria-hidden="true" />
+      <div className={styles.orb2} aria-hidden="true" />
 
-        <form className={styles.form} onSubmit={handleSubmit} id="login-form">
+      <main className={styles.card} role="main">
+        <header className={styles.header}>
+          <div className={styles.logoCircle} aria-hidden="true">📋</div>
+          <Title1 as="h1">Prancheta Digital</Title1>
+          <Text style={{ color: 'var(--color-text-secondary)' }}>
+            Sistema de Gestão Escolar · ETI
+          </Text>
+        </header>
+
+        <form className={styles.form} onSubmit={handleSubmit} id="login-form" noValidate>
           <div className={styles.formGroup}>
-            <Text weight="semibold" size={200}>Usuário</Text>
+            <Text weight="semibold" size={200} as="label" htmlFor="login-user">Usuário</Text>
             <Input
               id="login-user"
-              contentBefore={<PersonRegular />}
+              contentBefore={<PersonRegular aria-hidden="true" />}
               placeholder="Digite seu login"
               value={username}
               onChange={(e, data) => setUsername(data.value)}
               size="large"
               autoFocus
               required
+              aria-required="true"
+              aria-invalid={!!error}
             />
           </div>
 
           <div className={styles.formGroup}>
-            <Text weight="semibold" size={200}>Senha</Text>
+            <Text weight="semibold" size={200} as="label" htmlFor="login-pass">Senha</Text>
             <Input
               id="login-pass"
-              contentBefore={<LockClosedRegular />}
+              contentBefore={<LockClosedRegular aria-hidden="true" />}
               type="password"
               placeholder="Digite sua senha"
               value={password}
               onChange={(e, data) => setPassword(data.value)}
               size="large"
               required
+              aria-required="true"
             />
           </div>
 
-          {error && <div className={styles.errorMsg}>{error}</div>}
+          {/* Live region for accessibility announcements (errors) */}
+          <div aria-live="polite" aria-atomic="true">
+            {error && <div className={styles.errorMsg}>⚠️ {error}</div>}
+          </div>
 
           <Button
             appearance="primary"
@@ -223,35 +280,39 @@ export default function Login() {
             icon={<ArrowRightRegular />}
             iconPosition="after"
             disabled={loading}
-            style={{ marginTop: '8px' }}
+            className={styles.submitBtn}
           >
-            {loading ? 'Entrando...' : 'Entrar'}
+            {loading ? 'Autenticando...' : 'Entrar no Sistema'}
           </Button>
         </form>
 
         <Divider />
 
         <details className={styles.quickCreds}>
-          <summary style={{ cursor: 'pointer', fontWeight: '600' }}>
-            🔑 Credenciais de teste
+          <summary className={styles.quickCredsSummary} aria-expanded="false">
+            <ShieldCheckmarkRegular aria-hidden="true" /> Acesso Rápido — Credenciais de Teste
           </summary>
-          <ul className={styles.quickCredsList}>
+          <ul className={styles.quickCredsList} aria-label="Lista de credenciais rápidas">
             {QUICK_CREDENTIALS.map(cred => (
               <li key={cred.user}>
-                <span
+                <div
                   className={styles.quickLink}
                   role="button"
                   tabIndex={0}
                   onClick={() => handleQuickLogin(cred.user, cred.pass)}
                   onKeyDown={(e) => e.key === 'Enter' && handleQuickLogin(cred.user, cred.pass)}
+                  aria-label={`Entrar como ${cred.label}`}
                 >
-                  {cred.label} → {cred.user} / {cred.pass}
-                </span>
+                  <span>
+                    {cred.label} <span style={{ opacity: 0.6, fontSize: '0.75rem', marginLeft: '4px' }}>({cred.user})</span>
+                  </span>
+                  <span className={styles.roleBadge}>{cred.role}</span>
+                </div>
               </li>
             ))}
           </ul>
         </details>
-      </div>
+      </main>
     </div>
   );
 }
