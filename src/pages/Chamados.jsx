@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { triggerAllAlerts } from '../hooks/useAudio.js';
 import SLABadge from '../components/SLABadge.jsx';
@@ -164,6 +165,31 @@ export default function Chamados() {
   const [selectedReasons, setSelectedReasons] = useState([]);
   const [destination, setDestination] = useState('Disciplinar');
   const [syncCountdown, setSyncCountdown] = useState(30);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Auto-fill from Mapa de Sala via URL parameters
+  useEffect(() => {
+    const alunoNome = searchParams.get('aluno_nome');
+    const turma = searchParams.get('turma');
+    const origem = searchParams.get('origem');
+    const urgente = searchParams.get('urgente');
+
+    if (alunoNome && turma && origem === 'mapa_sala') {
+      const parts = alunoNome.trim().split(' ');
+      const firstName = parts[0] || '';
+      const lastName = parts.slice(1).join(' ') || '';
+
+      setPreview({
+        student: { firstName, lastName },
+        className: turma,
+        destination: urgente ? 'Coordenação' : 'Disciplinar',
+      });
+      setDestination(urgente ? 'Coordenação' : 'Disciplinar');
+      
+      // Clean up URL parameters so it doesn't trigger again on refresh
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   // Sync timer
   useEffect(() => {

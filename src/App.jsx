@@ -20,6 +20,16 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+// Route guard: redirects if user does not have required role
+function RoleProtectedRoute({ children, allowedRoles }) {
+  const { isAuthenticated, currentUser } = useAuth();
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (currentUser && !allowedRoles.includes(currentUser.role)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  return children;
+}
+
 // Route guard: redirects away from login if already authenticated
 function PublicRoute({ children }) {
   const { isAuthenticated, currentUser } = useAuth();
@@ -52,7 +62,14 @@ function App() {
             <Route path="/chamados" element={<Chamados />} />
             <Route path="/diretoria" element={<Diretoria />} />
             <Route path="/cms" element={<CMS />} />
-            <Route path="/mapa-sala" element={<MapaSala />} />
+            <Route 
+              path="/mapa-sala" 
+              element={
+                <RoleProtectedRoute allowedRoles={['admin', 'terminal']}>
+                  <MapaSala />
+                </RoleProtectedRoute>
+              } 
+            />
             <Route path="/settings" element={<Settings />} />
             <Route path="/campainha" element={<CampainhaProfessor />} />
           </Route>

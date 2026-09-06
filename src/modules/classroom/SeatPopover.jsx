@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Popover,
   PopoverSurface,
@@ -117,6 +118,8 @@ export default function SeatPopover({ assento, turmaId, onStatusChange, children
   const { createTicket } = useAuth();
   const [open, setOpen] = React.useState(false);
 
+  const navigate = useNavigate();
+
   if (!assento || assento.status === 'VAZIO') return <>{children}</>;
 
   const handleStatusChange = (status) => {
@@ -125,17 +128,15 @@ export default function SeatPopover({ assento, turmaId, onStatusChange, children
   };
 
   const handleOccurrence = () => {
-    const text = `Aluno ${assento.aluno_nome} (Turma ${turmaId}) — Ocorrência registrada via Mapa de Sala`;
-    createTicket(text);
     onStatusChange(assento.posicao, 'OCORRENCIA');
     setOpen(false);
+    navigate(`/chamados?aluno_nome=${encodeURIComponent(assento.aluno_nome)}&turma=${encodeURIComponent(turmaId)}&posicao=${encodeURIComponent(assento.posicao)}&origem=mapa_sala`);
   };
 
   const handleUrgent = () => {
-    const text = `🚨 URGENTE/GRAVE — Aluno ${assento.aluno_nome} (Turma ${turmaId}) — Encaminhamento imediato à Coordenação`;
-    createTicket(text);
     onStatusChange(assento.posicao, 'OCORRENCIA');
     setOpen(false);
+    navigate(`/chamados?aluno_nome=${encodeURIComponent(assento.aluno_nome)}&turma=${encodeURIComponent(turmaId)}&posicao=${encodeURIComponent(assento.posicao)}&origem=mapa_sala&urgente=true`);
   };
 
   return (
