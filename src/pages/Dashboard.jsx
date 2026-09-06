@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext.jsx';
+import SLABadge from '../components/SLABadge.jsx';
 import {
   makeStyles,
   Title2,
