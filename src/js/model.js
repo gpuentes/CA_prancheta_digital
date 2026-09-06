@@ -1,5 +1,6 @@
 // Model Layer for Prancheta Digital MVC Application
 import { TURMAS_SEED } from '../data/classroomSeats.js';
+import { webhookService } from '../services/webhookService.js';
 export class AppModel {
   constructor() {
     this.storageKey = 'prancheta_digital_state';
@@ -462,6 +463,12 @@ export class AppModel {
 
     this.state.occurrences.push(occurrence);
     this.notify();
+
+    // TRIGGER WEBHOOK IF CRITICAL (n8n Integration - SP3-01)
+    if (occurrence.severity === 'error' || occurrence.destination === 'Diretoria' || occurrence.location === 'Diretoria') {
+      webhookService.sendCriticalAlert(occurrence, student);
+    }
+
     return occurrence;
   }
 
