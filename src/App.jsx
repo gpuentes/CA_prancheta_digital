@@ -65,7 +65,7 @@ function App() {
             <Route 
               path="/mapa-sala" 
               element={
-                <RoleProtectedRoute allowedRoles={['admin', 'terminal']}>
+                <RoleProtectedRoute allowedRoles={['terminal', 'diretor', 'vice_diretor', 'admin']}>
                   <MapaSala />
                 </RoleProtectedRoute>
               } 

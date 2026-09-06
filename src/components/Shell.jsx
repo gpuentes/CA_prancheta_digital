@@ -189,11 +189,11 @@ const useStyles = makeStyles({
 });
 
 const TAB_CONFIG = {
-  dashboard: { label: 'Dashboard', path: '/dashboard', icon: <BoardRegular />, iconActive: <BoardFilled />, roles: ['diretor', 'admin'] },
-  patio: { label: 'Pátio', path: '/patio', icon: <ClipboardTaskListLtrRegular />, iconActive: <ClipboardTaskListLtrFilled />, roles: ['monitor', 'secretaria', 'diretor', 'admin'] },
-  chamados: { label: 'Ocorrência de Sala', path: '/chamados', icon: <AlertRegular />, iconActive: <AlertFilled />, roles: ['monitor', 'secretaria', 'diretor', 'admin'] },
-  diretoria: { label: 'Campainha (Geral)', path: '/diretoria', icon: <AlertRegular />, iconActive: <AlertFilled />, roles: ['secretaria', 'diretor', 'admin'] },
-  mapaSala: { label: 'Mapa de Sala', path: '/mapa-sala', icon: <TableRegular />, iconActive: <TableFilled />, roles: ['terminal', 'admin'] },
+  dashboard: { label: 'Dashboard', path: '/dashboard', icon: <BoardRegular />, iconActive: <BoardFilled />, roles: ['diretor', 'vice_diretor', 'admin'] },
+  patio: { label: 'Pátio', path: '/patio', icon: <ClipboardTaskListLtrRegular />, iconActive: <ClipboardTaskListLtrFilled />, roles: ['monitor', 'diretor', 'vice_diretor', 'admin'] },
+  chamados: { label: 'Ocorrência de Sala', path: '/chamados', icon: <AlertRegular />, iconActive: <AlertFilled />, roles: ['monitor', 'secretaria', 'diretor', 'vice_diretor', 'admin'] },
+  diretoria: { label: 'Campainha (Geral)', path: '/diretoria', icon: <AlertRegular />, iconActive: <AlertFilled />, roles: ['secretaria', 'diretor', 'vice_diretor', 'admin'] },
+  mapaSala: { label: 'Mapa de Sala', path: '/mapa-sala', icon: <TableRegular />, iconActive: <TableFilled />, roles: ['terminal', 'diretor', 'vice_diretor', 'admin'] },
   campainhaProfessor: { label: 'Ocorrência SALA', path: '/campainha', icon: <AlertRegular />, iconActive: <AlertFilled />, roles: ['terminal'] },
   cms: { label: 'Cadastros', path: '/cms', icon: <PeopleRegular />, iconActive: <PeopleFilled />, roles: ['secretaria', 'diretor', 'admin'] },
   settings: { label: 'Configurações', path: '/settings', icon: <SettingsRegular />, iconActive: <SettingsFilled />, roles: ['diretor', 'admin'] },
