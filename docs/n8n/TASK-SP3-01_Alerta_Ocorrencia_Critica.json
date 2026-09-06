@@ -1,0 +1,230 @@
+{
+  "name": "[CA-Prancheta] TASK-SP3-01 - Alertas de Ocorrências Críticas",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 🚨 TASK-SP3-01: Alertas de Ocorrências Críticas (CA Prancheta Digital)\n**Integração Assíncrona Fire-and-Forget com Ecossistema Beti / WUXIA-OPS**\n\n- **Endpoint:** `POST /ca-prancheta-alerta-critico`\n- **CORS:** Ativado (`*`) para suportar requisições PWA do React 19\n- **Critérios de Disparo:**\n  1. `severity === 'error'` (Ocorrências graves/acidentes)\n  2. `destination === 'Diretoria'` ou `location === 'Diretoria'`\n- **Credenciais Integradas (Beti):**\n  - Chatwoot: `21ROfMaPvvuX4mQL` (Conta_1_ODBR - Diretoria)\n  - PostgreSQL: `WJNu53k7yqlMdcZS` (Banco de Auditoria)",
+        "height": 450,
+        "width": 420
+      },
+      "id": "ccf3da9f-99db-4052-bfdf-1ba0acc57113",
+      "name": "Documentação do Fluxo",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ca-prancheta-alerta-critico",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        224,
+        176
+      ],
+      "id": "6a73868b-ce50-49b0-94bf-db68c180f33b",
+      "name": "Webhook Ocorrência Crítica",
+      "webhookId": "ca-prancheta-alerta-critico"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"acknowledged\",\n  \"event\": \"{{ $json.body.event }}\",\n  \"occurrenceId\": \"{{ $json.body.payload.occurrenceId }}\",\n  \"receivedAt\": \"{{ $now.toISO() }}\",\n  \"message\": \"Alerta crítico registrado na fila assíncrona com sucesso.\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        528,
+        16
+      ],
+      "id": "6fd05b53-ba87-4b77-bd5b-a751c37490f0",
+      "name": "Confirmar Recepção (200 OK)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "cond-severity-error",
+              "leftValue": "={{ $json.body.payload.severity }}",
+              "rightValue": "error",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "cond-dest-diretoria",
+              "leftValue": "={{ $json.body.payload.destination || $json.body.payload.location }}",
+              "rightValue": "Diretoria",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        528,
+        272
+      ],
+      "id": "4a41c7ef-9cdc-4680-a14e-edd0b2d68ea4",
+      "name": "Severidade Grave OU Diretoria?"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || {};\nconst payload = body.payload || {};\nconst student = payload.student || {};\nconst metadata = body.metadata || {};\n\nconst formattedTime = new Date(body.timestamp || Date.now()).toLocaleString('pt-BR', {\n  timeZone: 'America/Sao_Paulo'\n});\n\nconst reasonsList = Array.isArray(payload.reasons) \n  ? payload.reasons.join(', ') \n  : (payload.reasons || 'Não especificado');\n\nconst alertMessage = `🚨 *ALERTA DE OCORRÊNCIA CRÍTICA* 🚨\\n` +\n  `━━━━━━━━━━━━━━━━━━━━━━\\n` +\n  `👤 *Aluno:* ${student.name || 'Desconhecido'} (Turma: ${student.class || 'N/A'})\\n` +\n  `🆔 *ID Ocorrência:* ${payload.occurrenceId || 'N/A'}\\n` +\n  `⚠️ *Gravidade:* ${(payload.severity || 'UNKNOWN').toUpperCase()}\\n` +\n  `🎯 *Destino:* ${payload.destination || 'Diretoria'}\\n` +\n  `📍 *Local:* ${payload.location || 'Não informado'}\\n` +\n  `👮 *Monitor Responsável:* ${payload.monitor || 'Sistema'}\\n` +\n  `⏰ *Horário:* ${formattedTime}\\n` +\n  `📝 *Motivo(s):* ${reasonsList}\\n` +\n  `💬 *Detalhes:* ${payload.details || 'Sem detalhes adicionais'}\\n` +\n  `━━━━━━━━━━━━━━━━━━━━━━\\n` +\n  `📲 *Origem:* ${metadata.source || 'prancheta-digital-pwa'} v${metadata.version || '1.0'}`;\n\nreturn [{\n  json: {\n    alertMessage,\n    occurrenceId: payload.occurrenceId,\n    studentId: student.id,\n    studentName: student.name,\n    studentClass: student.class,\n    severity: payload.severity,\n    destination: payload.destination,\n    location: payload.location,\n    monitor: payload.monitor,\n    reasons: payload.reasons,\n    details: payload.details,\n    timestamp: body.timestamp,\n    rawPayload: payload\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        768,
+        176
+      ],
+      "id": "29a93f2a-23c4-42a4-9cdd-2ec3d2b177e8",
+      "name": "Formatar Notificação Humanizada"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://chat.online.des.br/api/v1/accounts/1/conversations",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api_access_token",
+              "value": "21ROfMaPvvuX4mQL"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "inbox_id",
+              "value": "8"
+            },
+            {
+              "name": "contact_id",
+              "value": "1"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.alertMessage }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1056,
+        48
+      ],
+      "id": "6ca3e0b3-d77f-4a71-a0d7-c30c88c03272",
+      "name": "Alerta Chatwoot / Canal Diretoria",
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO audit_occurrences_log (occurrence_id, student_id, student_name, severity, destination, location, monitor_name, details, payload, created_at)\nVALUES (\n  '{{ $json.occurrenceId }}',\n  '{{ $json.studentId }}',\n  '{{ $json.studentName }}',\n  '{{ $json.severity }}',\n  '{{ $json.destination }}',\n  '{{ $json.location }}',\n  '{{ $json.monitor }}',\n  '{{ $json.details.replace(/'/g, \"''\") }}',\n  '{{ JSON.stringify($json.rawPayload).replace(/'/g, \"''\") }}'::jsonb,\n  NOW()\n)\nON CONFLICT (occurrence_id) DO UPDATE \nSET details = EXCLUDED.details, updated_at = NOW();",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        1072,
+        320
+      ],
+      "id": "5b386264-85e8-4a67-a6fa-356fdb48183d",
+      "name": "Auditoria no PostgreSQL (Beti)",
+      "continueOnFail": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Ocorrência Crítica": {
+      "main": [
+        [
+          {
+            "node": "Confirmar Recepção (200 OK)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Severidade Grave OU Diretoria?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Severidade Grave OU Diretoria?": {
+      "main": [
+        [
+          {
+            "node": "Formatar Notificação Humanizada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatar Notificação Humanizada": {
+      "main": [
+        [
+          {
+            "node": "Alerta Chatwoot / Canal Diretoria",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Auditoria no PostgreSQL (Beti)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "c3c1e4ac-43ea-485b-b07e-28fcc814daf8",
+  "meta": {
+    "instanceId": "36e3f87ebc36e07b603ca9eb86f57c2978d5bbc9f484a1cf2b025eb096ab1fa5"
+  },
+  "nodeGroups": [],
+  "id": "b0f2DRCLKix1gYum",
+  "tags": []
+}

@@ -45,3 +45,6 @@ docs/MANUAL_CONSOLIDADO_WUXIA_OPS.md
 # --- Artefatos Windows e OpenSpec ---
 nul
 .openspec/
+
+# --- Provas de Conceito Temporárias ---
+docs/n8n/prova_conceito_n8n_POC.png
