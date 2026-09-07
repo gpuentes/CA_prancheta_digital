@@ -48,64 +48,57 @@ const useStyles = makeStyles({
   },
 });
 
-const SERIES = ['6', '7', '8'];
-const TURNOS = [
-  { value: 'MANHA', label: 'Manhã' },
-  { value: 'TARDE', label: 'Tarde' },
-];
+const getBaseSerie = (id) => {
+  if (id === '2EM_ITIN_HUMANAS') return '2EM_ITIN';
+  if (id.includes('EM')) return id.split('_')[0];
+  return id.replace(/[^0-9]/g, '');
+};
 
-/**
- * @param {{
- *   turmas: import('../../data/classroomSeats').Turma[],
- *   selectedId: string,
- *   onSelect: (turmaId: string) => void,
- * }} props
- */
+const getSerieLabel = (base) => {
+  if (base === '2EM_ITIN') return 'Itinerários (2º EM)';
+  if (base.includes('EM')) return `${base.charAt(0)}º EM`;
+  return `${base}º Ano`;
+};
+
+const getTurmaLetra = (id) => {
+  if (id === '2EM_ITIN_HUMANAS') return 'HUMANAS';
+  if (id.includes('EM')) return id.split('_')[1];
+  const match = id.match(/[A-C]$/);
+  return match ? match[0] : 'A';
+};
+
 export default function ClassroomSelector({ turmas, selectedId, onSelect }) {
   const styles = useStyles();
 
   const selectedTurma = turmas.find(t => t.turma_id === selectedId);
 
-  // Derive current selections from selectedId (e.g. '7TA' → serie=7, turno=T, turma=A)
-  const deriveSerie = (id) => id?.replace(/[^0-9]/g, '') || '6';
-  const deriveTurno = (id) => {
-    if (!id) return 'MANHA';
-    return id.includes('M') ? 'MANHA' : 'TARDE';
-  };
-  const deriveTurma = (id) => {
-    if (!id) return 'A';
-    const match = id.match(/[A-C]$/);
-    return match ? match[0] : 'A';
-  };
+  const baseSerie = getBaseSerie(selectedId);
+  const turno = selectedTurma ? selectedTurma.turno : 'MANHA';
+  const letra = getTurmaLetra(selectedId);
 
-  const [serie, setSerie] = React.useState(() => deriveSerie(selectedId));
-  const [turno, setTurno] = React.useState(() => deriveTurno(selectedId));
-  const [turmaLetra, setTurmaLetra] = React.useState(() => deriveTurma(selectedId));
+  const availableSeries = React.useMemo(() => {
+    return Array.from(new Set(turmas.map(t => getBaseSerie(t.turma_id))));
+  }, [turmas]);
 
-  // Available turma letters for the current serie+turno
-  const available = React.useMemo(() => {
+  const availableTurnosForSerie = React.useMemo(() => {
+    return Array.from(new Set(turmas.filter(t => getBaseSerie(t.turma_id) === baseSerie).map(t => t.turno)));
+  }, [turmas, baseSerie]);
+
+  const availableLetras = React.useMemo(() => {
     return turmas
-      .filter(t => {
-        const s = t.turma_id.replace(/[^0-9]/g, '');
-        const tn = t.turma_id.includes('M') ? 'MANHA' : 'TARDE';
-        return s === serie && tn === turno;
-      })
-      .map(t => t.turma);
-  }, [turmas, serie, turno]);
+      .filter(t => getBaseSerie(t.turma_id) === baseSerie && t.turno === turno)
+      .map(t => ({ id: t.turma_id, letra: getTurmaLetra(t.turma_id) }));
+  }, [turmas, baseSerie, turno]);
 
-  // Auto-select first available if current letter not present
-  React.useEffect(() => {
-    if (available.length && !available.includes(turmaLetra)) {
-      setTurmaLetra(available[0]);
-    }
-  }, [available]);
+  const handleSerieChange = (newBase) => {
+    const subset = turmas.filter(t => getBaseSerie(t.turma_id) === newBase);
+    if (subset.length) onSelect(subset[0].turma_id);
+  };
 
-  // Resolve turmaId and call onSelect on any change
-  React.useEffect(() => {
-    const turnoCode = turno === 'MANHA' ? 'M' : 'T';
-    const id = `${serie}${turnoCode}${turmaLetra}`;
-    if (id !== selectedId) onSelect(id);
-  }, [serie, turno, turmaLetra]);
+  const handleTurnoChange = (newTurno) => {
+    const subset = turmas.filter(t => getBaseSerie(t.turma_id) === baseSerie && t.turno === newTurno);
+    if (subset.length) onSelect(subset[0].turma_id);
+  };
 
   const isPendente = selectedTurma?.pendente;
 
@@ -116,12 +109,12 @@ export default function ClassroomSelector({ turmas, selectedId, onSelect }) {
         <span className={styles.label}>Série</span>
         <Select
           className={styles.select}
-          value={serie}
-          onChange={(_, data) => setSerie(data.value)}
+          value={baseSerie}
+          onChange={(_, data) => handleSerieChange(data.value)}
           aria-label="Selecionar série"
         >
-          {SERIES.map(s => (
-            <option key={s} value={s}>{s}º Ano</option>
+          {availableSeries.map(s => (
+            <option key={s} value={s}>{getSerieLabel(s)}</option>
           ))}
         </Select>
       </div>
@@ -132,11 +125,11 @@ export default function ClassroomSelector({ turmas, selectedId, onSelect }) {
         <Select
           className={styles.select}
           value={turno}
-          onChange={(_, data) => setTurno(data.value)}
+          onChange={(_, data) => handleTurnoChange(data.value)}
           aria-label="Selecionar turno"
         >
-          {TURNOS.map(t => (
-            <option key={t.value} value={t.value}>{t.label}</option>
+          {availableTurnosForSerie.map(t => (
+            <option key={t} value={t}>{t === 'MANHA' ? 'Manhã' : 'Tarde'}</option>
           ))}
         </Select>
       </div>
@@ -146,18 +139,15 @@ export default function ClassroomSelector({ turmas, selectedId, onSelect }) {
         <span className={styles.label}>Turma</span>
         <Select
           className={styles.select}
-          value={turmaLetra}
-          onChange={(_, data) => setTurmaLetra(data.value)}
+          value={selectedId}
+          onChange={(_, data) => onSelect(data.value)}
           aria-label="Selecionar turma"
         >
-          {['A', 'B', 'C'].map(l => {
-            const exists = available.includes(l);
-            return (
-              <option key={l} value={l} disabled={!exists}>
-                {l}{!exists ? ' (indisponível)' : ''}
-              </option>
-            );
-          })}
+          {availableLetras.map(opt => (
+            <option key={opt.id} value={opt.id}>
+              {opt.letra === 'HUMANAS' ? 'Humanas' : opt.letra}
+            </option>
+          ))}
         </Select>
       </div>
 
