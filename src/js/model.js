@@ -105,7 +105,7 @@ export class AppModel {
       { id: 's6', firstName: 'Marcos', lastName: 'Vinícius', classId: '08 MA', photoSeed: 'marcos' },
       { id: 's7', firstName: 'Lorenzo', lastName: 'Santos', classId: '07 MA', photoSeed: 'lorenzo' },
       { id: 's8', firstName: 'Miguel', lastName: 'Assis', classId: '03 EMB', photoSeed: 'miguel' },
-      { id: 's9', firstName: 'Ana', lastName: 'Costa', classId: '07 MA', photoSeed: 'ana' }, // Recurrent student
+      { id: 's9', firstName: 'Ana', lastName: 'Costa', classId: '07 MA', photoSeed: 'ana', siblings: ['s22'] }, // Recurrent student com irmã
       { id: 's10', firstName: 'Kethelyn', lastName: 'Camila', classId: '09 MC', photoSeed: 'kethelyn', isEletiva: true }, // Aluno de Eletiva
       { id: 's11', firstName: 'Maria', lastName: 'Clara', classId: '07 MA', photoSeed: 'maria', isEletiva: true }, // Aluno de Eletiva
       { id: 's12', firstName: 'Sophia', lastName: 'Carvalho', classId: '09 MA', photoSeed: 'sophia' },
@@ -118,7 +118,7 @@ export class AppModel {
       { id: 's19', firstName: 'Emanuelle', lastName: 'Rosa', classId: '07 MA', photoSeed: 'emanuelle' },
       { id: 's20', firstName: 'Enzo', lastName: 'Naka', classId: '03 EMA', photoSeed: 'enzo' },
       { id: 's21', firstName: 'Giovanna', lastName: 'Loredo', classId: '09 MC', photoSeed: 'giovanna' },
-      { id: 's22', firstName: 'Beatriz', lastName: 'Costa', classId: '08 MC', photoSeed: 'beatriz' }
+      { id: 's22', firstName: 'Beatriz', lastName: 'Costa', classId: '08 MC', photoSeed: 'beatriz', siblings: ['s9'] }
     ];
 
     // Default users
@@ -136,6 +136,8 @@ export class AppModel {
 
     // Default Rooms (Salas 09 a 34 + others)
     this.defaultRooms = [
+
+      { id: 'r_hall_entrada', name: 'Hall de Entrada', type: 'Comum' },
       { id: 'r_patio', name: 'Pátio Principal', type: 'Comum' },
       { id: 'r_cantina', name: 'Cantina', type: 'Comum' },
       { id: 'r_quadra', name: 'Quadra', type: 'Esportes' },
@@ -595,11 +597,16 @@ export class AppModel {
       detectedReasons.push('Outro / Observação');
     }
 
+    const detectedSibling = detectedStudent && detectedStudent.siblings && detectedStudent.siblings.length > 0
+      ? this.state.students.find(s => s.id === detectedStudent.siblings[0])
+      : null;
+
     return {
       student: detectedStudent,
       className: detectedClass || (detectedStudent ? detectedStudent.classId : ''),
       reasons: detectedReasons,
       destination: detectedDestination,
+      sibling: detectedSibling,
       rawText: text
     };
   }

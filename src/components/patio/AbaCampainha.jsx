@@ -14,6 +14,12 @@ import {
   DialogBody,
   DialogTitle,
   DialogContent,
+  Checkbox,
+  Menu,
+  MenuTrigger,
+  MenuList,
+  MenuItem,
+  MenuPopover,
 } from '@fluentui/react-components';
 import {
   AlertRegular,
@@ -90,6 +96,7 @@ export default function AbaCampainha() {
   const [ticketCreated, setTicketCreated] = useState(null);
   const [ticketCountdown, setTicketCountdown] = useState(0);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [callSibling, setCallSibling] = useState(true);
   const [slaModal, setSlaModal] = useState(null);
   const audioRef = useRef(null);
   const slaIntervalRef = useRef(null);
@@ -149,12 +156,21 @@ export default function AbaCampainha() {
 
   const handleQuickClick = (qa) => { setRawText(qa.template); setTicketCreated(null); };
 
+  const parsedPreview = useMemo(() => {
+    return parseSmartPaste(rawText);
+  }, [rawText, parseSmartPaste]);
+
   const handleSend = () => {
     if (!rawText.trim()) return;
-    const ticket = createTicket(rawText.trim());
-    ticket.rawInput = rawText.trim();
+    let finalRawText = rawText.trim();
+    if (parsedPreview?.destination === 'Ir embora' && parsedPreview?.sibling && callSibling) {
+      finalRawText += `, com o irmão ${parsedPreview.sibling.firstName} (${parsedPreview.sibling.classId})`;
+    }
+    const ticket = createTicket(finalRawText);
+    ticket.rawInput = finalRawText;
     setTicketCreated(ticket);
     setRawText('');
+    setCallSibling(true);
     setTicketCountdown(118);
   };
 
@@ -239,6 +255,17 @@ export default function AbaCampainha() {
               placeholder="Digite ou cole o chamado aqui..."
               rows={3} size="large" value={rawText} onChange={(e, data) => setRawText(data.value)}
             />
+            
+            {parsedPreview?.destination === 'Ir embora' && parsedPreview?.sibling && (
+              <div style={{ padding: '8px 12px', backgroundColor: 'var(--bg-sidebar-hover)', borderRadius: '6px', display: 'flex', alignItems: 'center' }}>
+                <Checkbox 
+                  checked={callSibling} 
+                  onChange={(e, d) => setCallSibling(!!d.checked)} 
+                  label={`Chamar irmão junto: ${parsedPreview.sibling.firstName} ${parsedPreview.sibling.lastName} (${parsedPreview.sibling.classId})`}
+                />
+              </div>
+            )}
+
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
               <Button appearance="primary" size="large" icon={<SendRegular />} disabled={!rawText.trim()} onClick={handleSend}>
                 Disparar Chamado (Campainha)
@@ -344,11 +371,31 @@ export default function AbaCampainha() {
                     appearance="primary"
                     icon={<CheckmarkCircleRegular />}
                     className={styles.stageBtn}
-                    style={{ backgroundColor: 'var(--color-success)' }}
+                    style={{ backgroundColor: 'var(--color-success)', flex: 2 }}
                     onClick={() => completeTicket(ticket.id, null, 'Porta azul — concluído')}
                   >
-                    FECHAR — Concluído / Porta Azul
+                    Concluído
                   </Button>
+                  <Menu>
+                    <MenuTrigger disableButtonEnhancement>
+                      <Button appearance="subtle" className={styles.stageBtn} style={{ flex: 1, border: '1px solid var(--color-error)', color: 'var(--color-error)' }}>
+                        FALHA
+                      </Button>
+                    </MenuTrigger>
+                    <MenuPopover>
+                      <MenuList>
+                        <MenuItem onClick={() => completeTicket(ticket.id, ['Outro / Observação'], 'Aluno Ausente / Não Encontrado na sala')}>
+                          Aluno Ausente
+                        </MenuItem>
+                        <MenuItem onClick={() => completeTicket(ticket.id, ['Outro / Observação'], 'Aluno Não Encontrado no pátio')}>
+                          Não Encontrado
+                        </MenuItem>
+                        <MenuItem onClick={() => completeTicket(ticket.id, ['Outro / Observação'], 'Já havia descido')}>
+                          Já Desceu
+                        </MenuItem>
+                      </MenuList>
+                    </MenuPopover>
+                  </Menu>
                 </div>
               </Card>
             ))}
