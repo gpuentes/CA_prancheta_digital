@@ -103,13 +103,18 @@ export default function CampainhaProfessor() {
   };
 
   const handleAguaAlert = () => {
-    createTicket(`[URGENTE] Água no chão / Limpeza solicitada por ${roomName}.`);
-    alert('Chamado urgente de LIMPEZA enviado com sucesso!');
+    createTicket(`[MANUTENÇÃO] Caiu água no chão / Limpeza solicitada por ${roomName}.`);
+    alert('Chamado de LIMPEZA enviado com sucesso!');
+  };
+
+  const handleTemperaturaAlert = () => {
+    createTicket(`[MANUTENÇÃO] Alterar temperatura do Ar Condicionado solicitada por ${roomName}.`);
+    alert('Chamado de TEMPERATURA enviado com sucesso!');
   };
 
   const handleOcorrencia = () => {
-    // Redireciona para a tela de Ocorrência de Sala
-    navigate('/chamados');
+    // Redireciona para o Mapa de Sala conforme plano
+    navigate('/mapa-sala');
   };
 
   return (
@@ -122,27 +127,27 @@ export default function CampainhaProfessor() {
       </div>
 
       <div className={styles.buttonsContainer}>
-        <button className={`${styles.kioskBtn} ${styles.btnNormal}`} onClick={handleMonitorAlert}>
-          <div className={styles.iconWrapper}><ChatHelpRegular /></div>
+        <button className={`${styles.kioskBtn} ${styles.btnNormal}`} onClick={handleAguaAlert}>
+          <div className={styles.iconWrapper}><AlertUrgentRegular /></div>
           <div className={styles.btnText}>
-            <Text size={600} weight="bold">MONITOR</Text>
-            <Text size={300}>Chamado geral de presença na sala.</Text>
+            <Text size={600} weight="bold">💧 Caiu água no chão</Text>
+            <Text size={300}>Solicitar limpeza urgente para a sala.</Text>
           </div>
         </button>
 
-        <button className={`${styles.kioskBtn} ${styles.btnUrgente}`} onClick={handleAguaAlert}>
-          <div className={styles.iconWrapper}><AlertUrgentRegular /></div>
+        <button className={`${styles.kioskBtn} ${styles.btnNormal}`} onClick={handleTemperaturaAlert}>
+          <div className={styles.iconWrapper}><ChatHelpRegular /></div>
           <div className={styles.btnText}>
-            <Text size={600} weight="bold">MONITOR / Água no chão</Text>
-            <Text size={300}>Chamado urgente de limpeza ou apoio.</Text>
+            <Text size={600} weight="bold">❄️ Alterar temperatura</Text>
+            <Text size={300}>Solicitar ajuste no ar condicionado.</Text>
           </div>
         </button>
 
         <button className={`${styles.kioskBtn} ${styles.btnGrave}`} onClick={handleOcorrencia}>
           <div className={styles.iconWrapper}><WarningFilled /></div>
           <div className={styles.btnText}>
-            <Text size={600} weight="bold">MONITOR / Ocorrência</Text>
-            <Text size={300}>Abre a tela de Ocorrência de Sala.</Text>
+            <Text size={600} weight="bold">⚠️ Ocorrência com aluno</Text>
+            <Text size={300}>Abre o Mapa de Sala para registrar a infração.</Text>
           </div>
         </button>
       </div>

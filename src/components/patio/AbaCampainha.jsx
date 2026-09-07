@@ -155,7 +155,7 @@ export default function AbaCampainha() {
     ticket.rawInput = rawText.trim();
     setTicketCreated(ticket);
     setRawText('');
-    setTicketCountdown(120);
+    setTicketCountdown(118);
   };
 
   const handleEditLast = () => {
@@ -187,8 +187,9 @@ export default function AbaCampainha() {
           <AlertUrgentRegular style={{ fontSize: '80px' }} />
           <Title3 style={{ color: '#fff', fontSize: '28px' }}>⚠ PRIORIZAR ESSE CHAMADO</Title3>
           <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: '18px', textAlign: 'center', maxWidth: '400px' }}>
-            {slaModal.studentName} — {slaModal.classId}
+            {slaModal.classId} — {slaModal.studentName}
             <br />{slaModal.reasons?.join(', ')}
+            <br />→ {slaModal.destination}
             <br />Aguardando há {getElapsedLabel(slaModal.createdAt)}
           </Text>
           <Button
@@ -280,10 +281,11 @@ export default function AbaCampainha() {
               <Card key={ticket.id} className={styles.ticketCard} appearance="outline">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div className={styles.cardInfo}>
+                    <Text size={200} style={{ color: 'var(--color-text-secondary)' }}>{ticket.classId}</Text>
                     <Text weight="bold" size={400}>{ticket.studentName}</Text>
-                    <Text size={200} style={{ color: 'var(--color-text-secondary)' }}>Turma: {ticket.classId}</Text>
                     <Text size={200} style={{ color: 'var(--color-text-secondary)', marginTop: '4px' }}>{ticket.reasons?.join(', ')}</Text>
                     <Text size={200} style={{ color: 'var(--color-text-secondary)' }}>→ {ticket.destination}</Text>
+                    <Text size={100} style={{ color: 'var(--color-brand)', marginTop: '4px' }}>Aberto por: {ticket.createdBy}</Text>
                   </div>
                   <Badge appearance="filled" color="warning">NOVO</Badge>
                 </div>

@@ -618,6 +618,7 @@ export class AppModel {
       status: 'RECEBIDO',
       priority: 'NORMAL',
       createdAt: new Date().toISOString(),
+      createdBy: this.state.currentUser ? this.state.currentUser.name : 'Sistema',
       readAt: null,
       attendedAt: null,
       closedAt: null,
@@ -674,7 +675,7 @@ export class AppModel {
     const ticket = this.state.tickets.find(t => t.id === ticketId);
     if (!ticket) return;
     const elapsed = (Date.now() - new Date(ticket.createdAt).getTime()) / 1000;
-    if (elapsed > 120) return; // Cannot edit after 120s
+    if (elapsed > 118) return; // Cannot edit after 118s
     Object.assign(ticket, updates);
     this.notify();
   }
@@ -684,7 +685,7 @@ export class AppModel {
     const ticket = this.state.tickets.find(t => t.id === ticketId);
     if (!ticket) return;
     const elapsed = (Date.now() - new Date(ticket.createdAt).getTime()) / 1000;
-    if (elapsed > 180) return; // Cannot cancel after 180s
+    if (elapsed > 118) return; // Cannot cancel after 118s
     ticket.status = 'CANCELADO';
     ticket.cancelledAt = new Date().toISOString();
     ticket.cancelledBy = this.state.currentUser ? this.state.currentUser.name : 'Secretaria';
@@ -695,8 +696,8 @@ export class AppModel {
   getTicketSLA(ticket) {
     if (!ticket || ticket.status !== 'RECEBIDO') return 'NORMAL';
     const elapsed = (Date.now() - new Date(ticket.createdAt).getTime()) / 1000;
-    if (elapsed >= 300) return 'ESTOURADO';
-    if (elapsed >= 180) return 'ALERTA';
+    if (elapsed >= 120) return 'ESTOURADO';
+    if (elapsed >= 90) return 'ALERTA';
     return 'NORMAL';
   }
 
