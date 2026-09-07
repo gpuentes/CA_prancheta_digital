@@ -20,12 +20,29 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+// Helper: rota padrão inicial por papel de usuário (evita loops de redirecionamento 403)
+function getHomeRouteByRole(role) {
+  switch (role) {
+    case 'terminal':
+      return '/mapa-sala';
+    case 'monitor':
+      return '/patio';
+    case 'secretaria':
+      return '/chamados';
+    case 'diretor':
+    case 'vice_diretor':
+    case 'admin':
+    default:
+      return '/dashboard';
+  }
+}
+
 // Route guard: redirects if user does not have required role
 function RoleProtectedRoute({ children, allowedRoles }) {
   const { isAuthenticated, currentUser } = useAuth();
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (currentUser && !allowedRoles.includes(currentUser.role)) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={getHomeRouteByRole(currentUser.role)} replace />;
   }
   return children;
 }

@@ -228,7 +228,18 @@ export default function Chamados() {
     }
     textToParse += ` - Original: ${sanitizedText}`;
 
-    createTicket(textToParse);
+    const studentObj = preview?.student || null;
+    const studentFullName = studentObj ? `${studentObj.firstName || ''} ${studentObj.lastName || ''}`.trim() : '';
+    const classVal = preview?.className || '';
+
+    createTicket({
+      rawText: textToParse,
+      student: studentObj,
+      studentName: studentFullName || undefined,
+      classId: classVal || undefined,
+      reasons: selectedReasons,
+      destination: destination,
+    });
     
     setPasteText('');
     setPreview(null);

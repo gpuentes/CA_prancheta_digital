@@ -522,6 +522,20 @@ export class AppModel {
       }
     }
 
+    // Fallback explícito: se a string contiver "- Aluno: Nome" (ex: vindo de Auto-fill do Mapa de Sala)
+    if (!detectedStudent) {
+      const alunoMatch = text.match(/-\s*Aluno:\s*([^-\n]+)/i);
+      if (alunoMatch) {
+        const full = alunoMatch[1].trim();
+        const parts = full.split(' ').filter(Boolean);
+        detectedStudent = {
+          id: null,
+          firstName: parts[0] || full,
+          lastName: parts.slice(1).join(' ') || '',
+        };
+      }
+    }
+
     // 2. Class mapping override if class text found separately (e.g. 7A, 8MB, 3EMB)
     for (const student of this.state.students) {
       const classNorm = student.classId.toLowerCase().replace(/\s+/g, '');
@@ -529,6 +543,14 @@ export class AppModel {
       if (textNormNoSpace.includes(classNorm)) {
         detectedClass = student.classId;
         break;
+      }
+    }
+
+    // Fallback explícito: se a string contiver "- Turma: 6MA"
+    if (!detectedClass) {
+      const turmaMatch = text.match(/-\s*Turma:\s*([^-\n]+)/i);
+      if (turmaMatch) {
+        detectedClass = turmaMatch[1].trim();
       }
     }
 
@@ -612,18 +634,48 @@ export class AppModel {
   }
 
   // Ticket (Chamado) Operations — State Machine v2: RECEBIDO → ATENDENDO → FECHADO
-  createTicket(rawText) {
-    const parsed = this.parseSmartPaste(rawText);
+  createTicket(input) {
+    let rawText = '';
+    let parsed = null;
+    let overrides = {};
+
+    if (typeof input === 'string') {
+      rawText = input;
+      parsed = this.parseSmartPaste(rawText);
+    } else if (input && typeof input === 'object') {
+      rawText = input.rawText || '';
+      parsed = rawText ? this.parseSmartPaste(rawText) : { reasons: [], destination: 'Disciplinar', rawText: '' };
+      overrides = input;
+    } else {
+      parsed = { reasons: [], destination: 'Disciplinar', rawText: '' };
+    }
+
+    const studentName = overrides.studentName
+      || (overrides.student ? `${overrides.student.firstName || ''} ${overrides.student.lastName || ''}`.trim() : null)
+      || (parsed.student ? `${parsed.student.firstName || ''} ${parsed.student.lastName || ''}`.trim() : null)
+      || 'Desconhecido';
+
+    const studentId = overrides.studentId
+      || (overrides.student ? overrides.student.id : null)
+      || (parsed.student ? parsed.student.id : null);
+
+    const classId = overrides.classId
+      || overrides.className
+      || (parsed.className || (parsed.student ? parsed.student.classId : 'Não identificada'));
+
+    const reasons = overrides.reasons || parsed.reasons || ['Outro / Observação'];
+    const destination = overrides.destination || parsed.destination || 'Disciplinar';
+
     const ticket = {
       id: 'tkt-' + Date.now(),
-      studentName: parsed.student ? `${parsed.student.firstName} ${parsed.student.lastName}` : 'Desconhecido',
-      studentId: parsed.student ? parsed.student.id : null,
-      classId: parsed.className || 'Não identificada',
-      reasons: parsed.reasons,
-      destination: parsed.destination,
-      rawText: parsed.rawText,
+      studentName,
+      studentId,
+      classId,
+      reasons,
+      destination,
+      rawText: rawText || `[Encaminhamento: ${destination}] - Aluno: ${studentName} (${classId}) - Motivos: ${reasons.join(', ')}`,
       status: 'RECEBIDO',
-      priority: 'NORMAL',
+      priority: overrides.priority || 'NORMAL',
       createdAt: new Date().toISOString(),
       createdBy: this.state.currentUser ? this.state.currentUser.name : 'Sistema',
       readAt: null,
