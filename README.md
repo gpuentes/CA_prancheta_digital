@@ -23,3 +23,32 @@ Para garantir que a equipe técnica e a área de negócios falem o mesmo idioma,
 *   **FDD (Feature-Driven Development):** Branches organizadas por funcionalidades (`feature/modulo-terminal`, `feature/modulo-patio`).
 *   **A11y (Acessibilidade):** Compliance com contraste Fluent 2 e suporte total a leitores de tela e daltônicos.
 *   **TDD / BDD:** Desenvolvimento guiado por testes, traduzidos a partir de histórias de usuário (Gherkin).
+
+---
+
+## 📦 Atualização de Versionamento e Git Flow (06/09/2026)
+Para manter a organização do código e a rastreabilidade das entregas, o repositório foi estruturado com as seguintes branches e commits padronizados (Conventional Commits):
+
+### 🌳 Árvore de Branches Atuais
+- `main`: Código espelho da produção (estável).
+- `develop`: Ambiente de integração e testes.
+- `docs/arquitetura-fase3`: Branch dedicada à documentação as Code (DaC) de hoje.
+- `feature/schema-prisma`: Branch para o modelo de banco de dados e extensões.
+- `feature/mapa-de-sala`: Branch para o desenvolvimento do UI/UX do popover e Kiosk Mode.
+
+### 📝 Registro de Commits (Changelog de Hoje)
+
+```bash
+# Branch: docs/arquitetura-fase3
+commit 1: docs: atualiza PRD com escopo da Fase 3 e RBAC do menu lateral
+commit 2: docs: documenta wireframes lógicos e heurísticas A11y para Safari/iPad
+
+# Branch: feature/schema-prisma
+commit 3: feat(db): cria schema.prisma com entidades Aluno, Local, Ocorrencia e pgvector
+commit 4: chore(db): prepara script de seed inicial com planta do piso superior e inferior
+
+# Branch: feature/mapa-de-sala
+commit 5: feat(ui): cria modal contextual do aluno no mapa com botões de status da aula
+commit 6: feat(ui): implementa push route com state management para a tela de chamados
+commit 7: feat(kiosk): adiciona botão de Alerta Grave (Double Opt-in) com integração WhatsApp
+```
