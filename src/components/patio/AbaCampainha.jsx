@@ -304,44 +304,55 @@ export default function AbaCampainha() {
             Chamados Aguardando ({recebidos.length})
           </Title3>
           <div className={styles.grid}>
-            {recebidos.map(ticket => (
-              <Card key={ticket.id} className={styles.ticketCard} appearance="outline">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div className={styles.cardInfo}>
-                    <Text size={200} style={{ color: 'var(--color-text-secondary)' }}>{ticket.classId}</Text>
-                    <Text weight="bold" size={400}>{ticket.studentName}</Text>
-                    <Text size={200} style={{ color: 'var(--color-text-secondary)', marginTop: '4px' }}>{ticket.reasons?.join(', ')}</Text>
-                    <Text size={200} style={{ color: 'var(--color-text-secondary)' }}>→ {ticket.destination}</Text>
-                    <Text size={100} style={{ color: 'var(--color-brand)', marginTop: '4px' }}>Aberto por: {ticket.createdBy}</Text>
+            {recebidos.map(ticket => {
+              const elapsedStr = getElapsedLabel(ticket.createdAt);
+              const isOverdue = elapsedStr.includes('m') && parseInt(elapsedStr.split('m')[0]) >= 3;
+              
+              return (
+                <Card key={ticket.id} className={styles.ticketCard} appearance="outline" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Badge appearance="filled" color={isOverdue ? 'danger' : 'warning'} style={{ backgroundColor: isOverdue ? '#dc2626' : undefined }}>
+                      ⏱️ {elapsedStr}
+                    </Badge>
+                    <Text size={200} style={{ color: 'var(--color-text-secondary)' }}>
+                      {new Date(ticket.createdAt).toLocaleTimeString('pt-BR')}
+                    </Text>
                   </div>
-                  <Badge appearance="filled" color="warning">NOVO</Badge>
-                </div>
-                <Text size={100} style={{ color: 'var(--color-text-secondary)', marginTop: '8px' }}>
-                  {new Date(ticket.createdAt).toLocaleString('pt-BR')} • {getElapsedLabel(ticket.createdAt)}
-                </Text>
-                <div className={styles.cardActions}>
-                  <Button
-                    appearance="primary"
-                    icon={<CheckmarkRegular />}
-                    className={styles.stageBtn}
-                    onClick={() => acceptTicket(ticket.id)}
-                  >
-                    START — Recebido / Li
-                  </Button>
-                  {isSecretaria && (
+                  <Divider style={{ margin: '4px 0' }} />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <Text size={200}>📍 <strong>DESTINO:</strong> {ticket.destination}</Text>
+                    <Text size={200}>👤 <strong>ABERTO POR:</strong> {ticket.createdBy}</Text>
+                    <Text size={200}>🏷️ <strong>TIPO:</strong> {ticket.reasons?.join(', ')}</Text>
+                  </div>
+                  <div style={{ backgroundColor: 'var(--color-neutral-background-2)', padding: '12px', borderRadius: '6px' }}>
+                    <Text size={200} weight="semibold" block style={{ marginBottom: '4px' }}>📝 DESCRIÇÃO:</Text>
+                    <Text size={200} block style={{ whiteSpace: 'pre-wrap' }}>
+                      {ticket.rawInput || ticket.rawText || `${ticket.studentName} (${ticket.classId})`}
+                    </Text>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px', marginTop: 'auto' }}>
+                    {isSecretaria && (
+                      <Button
+                        appearance="outline"
+                        icon={<DismissRegular />}
+                        style={{ flex: 1, minHeight: '48px', fontSize: '13px' }}
+                        onClick={() => cancelTicket(ticket.id)}
+                      >
+                        NOTIFICAR
+                      </Button>
+                    )}
                     <Button
-                      appearance="subtle"
-                      icon={<DismissRegular />}
-                      size="small"
-                      onClick={() => cancelTicket(ticket.id)}
-                      title="Cancelar chamado"
+                      appearance="primary"
+                      icon={<CheckmarkRegular />}
+                      style={{ flex: 2, minHeight: '48px', fontSize: '14px', fontWeight: 'bold' }}
+                      onClick={() => acceptTicket(ticket.id)}
                     >
-                      Cancelar
+                      ✔️ ATENDER
                     </Button>
-                  )}
-                </div>
-              </Card>
-            ))}
+                  </div>
+                </Card>
+              );
+            })}
           </div>
         </>
       )}

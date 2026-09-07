@@ -8,6 +8,7 @@ import {
   Text,
   Divider,
   makeStyles,
+  Checkbox,
 } from '@fluentui/react-components';
 import {
   PersonRegular,
@@ -117,6 +118,7 @@ export default function SeatPopover({ assento, turmaId, onStatusChange, children
   const styles = useStyles();
   const { createTicket } = useAuth();
   const [open, setOpen] = React.useState(false);
+  const [confirmUrgent, setConfirmUrgent] = React.useState(false);
 
   const navigate = useNavigate();
 
@@ -144,7 +146,10 @@ export default function SeatPopover({ assento, turmaId, onStatusChange, children
       withArrow
       positioning="above-start"
       open={open}
-      onOpenChange={(_, data) => setOpen(data.open)}
+      onOpenChange={(_, data) => {
+        setOpen(data.open);
+        if (!data.open) setConfirmUrgent(false);
+      }}
     >
       <PopoverTrigger disableButtonEnhancement>
         <div style={{ width: '100%', height: '100%' }} onClick={() => setOpen(o => !o)}>
@@ -218,16 +223,28 @@ export default function SeatPopover({ assento, turmaId, onStatusChange, children
 
           <Divider />
 
-          {/* Botão URGENTE/GRAVE — destaque visual vermelho */}
-          <Button
-            appearance="primary"
-            icon={<AlertUrgentRegular />}
-            className={styles.urgentBtn}
-            style={{ backgroundColor: '#dc2626', borderColor: '#dc2626' }}
-            onClick={handleUrgent}
-          >
-            🚨 ALERTA URGENTE / GRAVE
-          </Button>
+          {/* Botão URGENTE/GRAVE — destaque visual vermelho com Double Opt-in */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '4px' }}>
+            <Checkbox
+              checked={confirmUrgent}
+              onChange={(e, data) => setConfirmUrgent(data.checked)}
+              label={<span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>Confirmar notificação de pânico</span>}
+            />
+            <Button
+              appearance="primary"
+              icon={<AlertUrgentRegular />}
+              className={styles.urgentBtn}
+              style={{
+                backgroundColor: confirmUrgent ? '#dc2626' : 'var(--color-neutral-background-5)',
+                borderColor: confirmUrgent ? '#dc2626' : 'transparent',
+                color: confirmUrgent ? '#fff' : 'var(--color-neutral-foreground-3)'
+              }}
+              onClick={handleUrgent}
+              disabled={!confirmUrgent}
+            >
+              🚨 ALERTA URGENTE / GRAVE
+            </Button>
+          </div>
         </div>
       </PopoverSurface>
     </Popover>
