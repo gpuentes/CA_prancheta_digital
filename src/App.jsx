@@ -56,12 +56,12 @@ function App() {
               </ProtectedRoute>
             }
           >
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/patio" element={<Patio />} />
+            <Route path="/dashboard" element={<RoleProtectedRoute allowedRoles={['diretor', 'vice_diretor', 'admin']}><Dashboard /></RoleProtectedRoute>} />
+            <Route path="/patio" element={<RoleProtectedRoute allowedRoles={['monitor', 'diretor', 'vice_diretor', 'admin']}><Patio /></RoleProtectedRoute>} />
             <Route path="/monitor" element={<Navigate to="/patio" replace />} />
-            <Route path="/chamados" element={<Chamados />} />
-            <Route path="/diretoria" element={<Diretoria />} />
-            <Route path="/cms" element={<CMS />} />
+            <Route path="/chamados" element={<RoleProtectedRoute allowedRoles={['monitor', 'secretaria', 'diretor', 'vice_diretor', 'admin']}><Chamados /></RoleProtectedRoute>} />
+            <Route path="/diretoria" element={<RoleProtectedRoute allowedRoles={['diretor', 'vice_diretor', 'admin']}><Diretoria /></RoleProtectedRoute>} />
+            <Route path="/cms" element={<RoleProtectedRoute allowedRoles={['secretaria', 'diretor', 'vice_diretor', 'admin']}><CMS /></RoleProtectedRoute>} />
             <Route 
               path="/mapa-sala" 
               element={
@@ -70,8 +70,8 @@ function App() {
                 </RoleProtectedRoute>
               } 
             />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/campainha" element={<CampainhaProfessor />} />
+            <Route path="/settings" element={<RoleProtectedRoute allowedRoles={['diretor', 'vice_diretor', 'admin']}><Settings /></RoleProtectedRoute>} />
+            <Route path="/campainha" element={<RoleProtectedRoute allowedRoles={['secretaria', 'diretor', 'vice_diretor', 'admin']}><CampainhaProfessor /></RoleProtectedRoute>} />
           </Route>
 
           {/* Protected: Kiosk Terminal (No Shell) */}

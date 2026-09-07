@@ -218,9 +218,18 @@ export default function Chamados() {
       return;
     }
     const sanitizedText = pasteText.trim().replace(/[<>]/g, '');
-    createTicket(
-      `[Encaminhamento: ${destination}] - Motivos: ${selectedReasons.join(', ')} - Original: ${sanitizedText}`
-    );
+    
+    let textToParse = `[Encaminhamento: ${destination}] - Motivos: ${selectedReasons.join(', ')}`;
+    if (preview?.student?.firstName) {
+      textToParse += ` - Aluno: ${preview.student.firstName} ${preview.student.lastName || ''}`;
+    }
+    if (preview?.className) {
+      textToParse += ` - Turma: ${preview.className}`;
+    }
+    textToParse += ` - Original: ${sanitizedText}`;
+
+    createTicket(textToParse);
+    
     setPasteText('');
     setPreview(null);
     setSelectedReasons([]);
