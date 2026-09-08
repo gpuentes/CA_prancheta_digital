@@ -26,9 +26,8 @@ function getHomeRouteByRole(role) {
     case 'terminal':
       return '/mapa-sala';
     case 'monitor':
-      return '/patio';
     case 'secretaria':
-      return '/chamados';
+      return '/patio';
     case 'diretor':
     case 'vice_diretor':
     case 'admin':
@@ -74,10 +73,10 @@ function App() {
             }
           >
             <Route path="/dashboard" element={<RoleProtectedRoute allowedRoles={['diretor', 'vice_diretor', 'admin']}><Dashboard /></RoleProtectedRoute>} />
-            <Route path="/patio" element={<RoleProtectedRoute allowedRoles={['monitor', 'diretor', 'vice_diretor', 'admin']}><Patio /></RoleProtectedRoute>} />
+            <Route path="/patio" element={<RoleProtectedRoute allowedRoles={['monitor', 'secretaria', 'diretor', 'vice_diretor', 'admin']}><Patio /></RoleProtectedRoute>} />
             <Route path="/monitor" element={<Navigate to="/patio" replace />} />
             <Route path="/chamados" element={<RoleProtectedRoute allowedRoles={['monitor', 'secretaria', 'diretor', 'vice_diretor', 'admin']}><Chamados /></RoleProtectedRoute>} />
-            <Route path="/diretoria" element={<RoleProtectedRoute allowedRoles={['diretor', 'vice_diretor', 'admin']}><Diretoria /></RoleProtectedRoute>} />
+            <Route path="/diretoria" element={<RoleProtectedRoute allowedRoles={['secretaria', 'diretor', 'vice_diretor', 'admin']}><Diretoria /></RoleProtectedRoute>} />
             <Route path="/cms" element={<RoleProtectedRoute allowedRoles={['secretaria', 'diretor', 'vice_diretor', 'admin']}><CMS /></RoleProtectedRoute>} />
             <Route 
               path="/mapa-sala" 

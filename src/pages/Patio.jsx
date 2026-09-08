@@ -35,7 +35,15 @@ export default function Patio() {
   const { currentUser } = useAuth();
   const [selectedTab, setSelectedTab] = useState('campainha');
 
-  const isSecretaria = currentUser && ['secretaria', 'admin', 'diretor'].includes(currentUser.role);
+  // Roles distintos para controle de visibilidade de abas
+  const isSecretaria = currentUser && currentUser.role === 'secretaria';
+  const isMonitor = currentUser && currentUser.role === 'monitor';
+  const isAdmin = currentUser && ['admin', 'diretor'].includes(currentUser.role);
+
+  // CAMPAINHA LISTA: Secretaria + Admin/Diretor (gestão); Monitor NÃO
+  const canSeeCampainhaLista = isSecretaria || isAdmin;
+  // PRANCHETA (ocorrência de pátio): Monitor + Admin/Diretor; Secretaria NÃO
+  const canSeePrancheta = isMonitor || isAdmin;
 
   return (
     <div className={styles.container}>
@@ -60,21 +68,23 @@ export default function Patio() {
           <Tab value="campainha" icon={<AlertRegular />}>
             CAMPAINHA
           </Tab>
-          {isSecretaria && (
+          {canSeeCampainhaLista && (
             <Tab value="campainha_lista" icon={<ClipboardTaskListLtrRegular />}>
               CAMPAINHA LISTA
             </Tab>
           )}
-          <Tab value="ocorrencia" icon={<ClipboardTaskListLtrRegular />}>
-            PRANCHETA
-          </Tab>
+          {canSeePrancheta && (
+            <Tab value="ocorrencia" icon={<ClipboardTaskListLtrRegular />}>
+              PRANCHETA
+            </Tab>
+          )}
         </TabList>
       </div>
 
       {/* ─── Active Tab Content ─── */}
       {selectedTab === 'campainha' && <AbaCampainha />}
-      {selectedTab === 'ocorrencia' && <AbaOcorrencia />}
-      {selectedTab === 'campainha_lista' && <AbaCampainhaLista />}
+      {selectedTab === 'ocorrencia' && canSeePrancheta && <AbaOcorrencia />}
+      {selectedTab === 'campainha_lista' && canSeeCampainhaLista && <AbaCampainhaLista />}
     </div>
   );
 }
