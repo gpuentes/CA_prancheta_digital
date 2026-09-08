@@ -96,11 +96,15 @@ export default function MapaSala() {
 
   const turmas = useMemo(() => state.classrooms || [], [state.classrooms]);
 
-  // Default: primeira turma disponível não-pendente
   const defaultId = useMemo(() => {
+    // Se o usuário logado for um terminal (sala de aula), seleciona a turma daquela sala física
+    if (state.currentUser?.role === 'terminal' && state.currentUser?.login) {
+      const matchingRoom = turmas.find(t => t.sala_numero === state.currentUser.login);
+      if (matchingRoom) return matchingRoom.turma_id;
+    }
     const first = turmas.find(t => !t.pendente);
     return first?.turma_id || turmas[0]?.turma_id || '6MA';
-  }, [turmas]);
+  }, [turmas, state.currentUser]);
 
   const [selectedId, setSelectedId] = useState(defaultId);
 

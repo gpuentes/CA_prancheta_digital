@@ -612,6 +612,101 @@ const rawTurmas = [
       ["Nicolas", "Maria Luísa", "Letícia", "Isabella Bom Sucesso", "Mateus Vinicius", "Pietra"],
       ["João Paulo", "Lyvia", "Rayssa", "Graziele", "Maria Eduarda", "João Pedro"]
     ]
+  },
+  {
+    "turma_id": "1EMA",
+    "serie": "1º Ano",
+    "etapa": "MEDIO",
+    "turno": "MANHA",
+    "sala_fisica": "20",
+    "conselheiro": "Carlos",
+    "representantes": ["Felipe", "Mariana"],
+    "orientacao": { "porta": "LEFT", "mesa_professor": "TOP_CENTER" },
+    "grid": { "colunas": 5, "linhas": 6, "total_assentos": 30, "alunos_alocados": 28 },
+    "mapa": [
+      ["Enzo", "Felipe", "Mariana", "Gabriel", "Rafaela"],
+      ["Lucas", "Guilherme", "Beatriz", "Pedro", "Ana Clara"],
+      ["Leonardo", "Julia", "Matheus", "Isabella", "Gustavo"],
+      ["Arthur", "Larissa", "Thiago", "Camila", "Davi"],
+      ["Manuela", "Bruno", "Leticia", "Vinicius", "Yasmin"],
+      ["[Vazio]", "Henrique", "Luiza", "Caio", "[Vazio]"]
+    ]
+  },
+  {
+    "turma_id": "1EMB",
+    "serie": "1º Ano",
+    "etapa": "MEDIO",
+    "turno": "MANHA",
+    "sala_fisica": "21",
+    "conselheiro": "Marcos",
+    "representantes": ["Rebeca", "João Pedro"],
+    "orientacao": { "porta": "LEFT", "mesa_professor": "TOP_CENTER" },
+    "grid": { "colunas": 5, "linhas": 6, "total_assentos": 30, "alunos_alocados": 27 },
+    "mapa": [
+      ["Rebeca", "João Pedro", "Clara", "Vitor", "Sarah"],
+      ["Nicolas", "Alice", "Samuel", "Helena", "Diego"],
+      ["Renan", "Laura", "Caio M.", "Sophia", "Daniel"],
+      ["Marcela", "Danilo", "Amanda", "Rodrigo", "Melissa"],
+      ["Igor", "Bianca", "Alexandre", "Giovanna", "Felipe S."],
+      ["[Vazio]", "Lorena", "[Vazio]", "Murilo", "[Vazio]"]
+    ]
+  },
+  {
+    "turma_id": "2EMA",
+    "serie": "2º Ano",
+    "etapa": "MEDIO",
+    "turno": "MANHA",
+    "sala_fisica": "22",
+    "conselheiro": "Fernanda",
+    "representantes": ["Eduardo", "Carolina"],
+    "orientacao": { "porta": "LEFT", "mesa_professor": "TOP_CENTER" },
+    "grid": { "colunas": 5, "linhas": 6, "total_assentos": 30, "alunos_alocados": 26 },
+    "mapa": [
+      ["Eduardo", "Carolina", "Breno", "Evelyn", "Augusto"],
+      ["Otavio", "Patricia", "Fabio", "Brenda", "Wagner"],
+      ["Leandro", "Vivian", "Cesar", "Tatiane", "Erick"],
+      ["Wesley", "Sabrina", "Moises", "Renata", "Kelly"],
+      ["Priscila", "Alan", "Debora", "Tiago", "Ester"],
+      ["[Vazio]", "Cristiano", "[Vazio]", "[Vazio]", "Sandro"]
+    ]
+  },
+  {
+    "turma_id": "2EMB",
+    "serie": "2º Ano",
+    "etapa": "MEDIO",
+    "turno": "MANHA",
+    "sala_fisica": "23",
+    "conselheiro": "Daniel",
+    "representantes": ["Davi", "Aline"],
+    "orientacao": { "porta": "LEFT", "mesa_professor": "TOP_CENTER" },
+    "grid": { "colunas": 5, "linhas": 6, "total_assentos": 30, "alunos_alocados": 28 },
+    "mapa": [
+      ["Davi", "Aline", "Cassio", "Bruna", "Fernando"],
+      ["Douglas", "Carla", "Valter", "Mirella", "Robson"],
+      ["Jonas", "Joana", "Tales", "Lilian", "Mauro"],
+      ["Silvia", "Elias", "Flavia", "Gilberto", "Gisele"],
+      ["Hugo", "Cintia", "Nelson", "Janaina", "Osvaldo"],
+      ["[Vazio]", "Pamela", "Reginaldo", "Tania", "[Vazio]"]
+    ]
+  },
+  {
+    "turma_id": "3EMA",
+    "serie": "3º Ano",
+    "etapa": "MEDIO",
+    "turno": "MANHA",
+    "sala_fisica": "24",
+    "conselheiro": "Patricia",
+    "representantes": ["Lucas", "Jessica"],
+    "orientacao": { "porta": "LEFT", "mesa_professor": "TOP_CENTER" },
+    "grid": { "colunas": 5, "linhas": 6, "total_assentos": 30, "alunos_alocados": 29 },
+    "mapa": [
+      ["Lucas", "Jessica", "Alex", "Adriana", "Bernardo"],
+      ["Celso", "Denise", "Fabricio", "Fatima", "Helio"],
+      ["Iara", "Joel", "Katia", "Luciano", "Monica"],
+      ["Nadia", "Orlando", "Paloma", "Raul", "Sheila"],
+      ["Tulio", "Ursula", "Vagner", "Vera", "Wilian"],
+      ["Yuri", "Zuleica", "Danilo", "Talita", "[Vazio]"]
+    ]
   }
 ];
 

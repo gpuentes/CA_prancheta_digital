@@ -174,7 +174,11 @@ const QUICK_CREDENTIALS = [
   { label: 'Monitor (Ana Paula)', user: 'anapaula', pass: '123', role: 'monitor' },
   { label: 'Secretaria (Renata)', user: 'renata', pass: '123', role: 'secretaria' },
   { label: 'Diretor (Marcelo)', user: 'marcelo', pass: '123', role: 'diretor' },
-  { label: 'Terminal 20', user: '20', pass: '123', role: 'terminal' },
+  { label: 'Terminal Sala 20', user: '20', pass: '123', role: 'terminal' },
+  { label: 'Terminal Sala 21', user: '21', pass: '123', role: 'terminal' },
+  { label: 'Terminal Sala 22', user: '22', pass: '123', role: 'terminal' },
+  { label: 'Terminal Sala 23', user: '23', pass: '123', role: 'terminal' },
+  { label: 'Terminal Sala 24', user: '24', pass: '123', role: 'terminal' },
 ];
 
 export default function Login() {
