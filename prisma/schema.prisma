@@ -1,0 +1,247 @@
+// Prisma Schema - CA Prancheta Digital
+// Arquitetura: WUXIA-OPS Enterprise | PostgreSQL + pgvector
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+// ─── Enums de Domínio ─────────────────────────────────────────────────────────
+
+enum UserRole {
+  ADMIN
+  DIRETOR
+  VICE_DIRETOR
+  SECRETARIA
+  MONITOR
+  TERMINAL
+}
+
+enum PisoAmbiente {
+  SUPERIOR
+  INFERIOR
+  ADMINISTRATIVO
+  BLOCO_ANEXO
+}
+
+enum TipoLocal {
+  SALA_AULA
+  CORREDOR
+  PATIO
+  ADMINISTRATIVO
+  LABORATORIO
+  ESPORTIVO
+  APOIO
+}
+
+enum Turno {
+  MANHA
+  TARDE
+  INTEGRAL
+}
+
+enum StatusAssento {
+  PRESENTE
+  ADVERTENCIA
+  OCORRENCIA
+  AUSENTE
+  VAZIO
+}
+
+enum TicketStatus {
+  RECEBIDO
+  ATENDENDO
+  FECHADO
+  CANCELADO
+}
+
+enum TicketPriority {
+  NORMAL
+  URGENTE
+  GRAVE
+}
+
+// ─── Entidades do Sistema ───────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      UserRole @default(MONITOR)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  chamadosCriados   Chamado[]    @relation("ChamadosCriados")
+  chamadosAtendidos Chamado[]    @relation("ChamadosAtendidos")
+  ocorrencias       Ocorrencia[]
+
+  @@index([role])
+  @@index([email])
+}
+
+model Local {
+  id        String       @id @default(uuid())
+  codigo    String       @unique // ex: "SALA_24", "HALL_ENTRADA", "CANTINA"
+  nome      String       // ex: "Sala 24", "Pátio Infantil"
+  piso      PisoAmbiente
+  tipo      TipoLocal
+  ala       String?      // ex: "Corredor Esquerdo", "Corredor Superior", "Bloco Central"
+  descricao String?
+  ativo     Boolean      @default(true)
+  createdAt DateTime     @default(now())
+
+  turmas      Turma[]
+  ocorrencias Ocorrencia[]
+
+  @@index([piso])
+  @@index([tipo])
+}
+
+model Turma {
+  id             String   @id @default(uuid())
+  codigo         String   @unique // ex: "6MA", "3EMA", "9MB"
+  serie          String   // ex: "6º Ano", "3º Ensino Médio"
+  etapa          String   // "FUNDAMENTAL_2" | "ENSINO_MEDIO" | "FUNDAMENTAL_1"
+  turno          Turno    @default(MANHA)
+  conselheiro    String?
+  representantes String[] @default([])
+  totalAssentos  Int      @default(40)
+  portaPosicao   String?  @default("LEFT")
+  mesaPosicao    String?  @default("BOTTOM_RIGHT")
+
+  localId        String?
+  local          Local?   @relation(fields: [localId], references: [id])
+
+  alunos         Aluno[]
+  assentos       AssentoMapa[]
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([turno])
+  @@index([etapa])
+}
+
+model Aluno {
+  id          String   @id @default(uuid())
+  matricula   String?  @unique
+  nome        String
+  ativo       Boolean  @default(true)
+  fotoUrl     String?
+
+  turmaId     String
+  turma       Turma    @relation(fields: [turmaId], references: [id])
+
+  irmaosIds   String[] @default([])
+
+  ocorrencias Ocorrencia[]
+  chamados    Chamado[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([turmaId])
+  @@index([nome])
+}
+
+model AssentoMapa {
+  id         String        @id @default(uuid())
+  turmaId    String
+  turma      Turma         @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  linha      Int
+  coluna     Int
+  posicao    String        // ex: "L1-C1", "L2-C3"
+  status     StatusAssento @default(VAZIO)
+  alunoNome  String?
+  alunoId    String?
+
+  updatedAt  DateTime      @updatedAt
+
+  @@unique([turmaId, linha, coluna])
+  @@index([turmaId])
+}
+
+model TipoOcorrencia {
+  id        String   @id @default(uuid())
+  label     String   @unique // ex: "Falta de Uniforme (Blusa)", "Uso de Celular"
+  categoria String   // "UNIFORME", "CONDUTA", "EQUIPAMENTO", "OUTRO"
+  gravidade String   @default("LEVE") // "LEVE", "MEDIA", "GRAVE"
+  ativo     Boolean  @default(true)
+
+  ocorrencias Ocorrencia[]
+}
+
+model Ocorrencia {
+  id             String         @id @default(uuid())
+  alunoId        String
+  aluno          Aluno          @relation(fields: [alunoId], references: [id])
+  tipoId         String
+  tipo           TipoOcorrencia @relation(fields: [tipoId], references: [id])
+  localId        String
+  local          Local          @relation(fields: [localId], references: [id])
+  monitorId      String
+  monitor        User           @relation(fields: [monitorId], references: [id])
+
+  motivos        String[]
+  descricao      String?
+  data           DateTime       @default(now())
+  statusEnvioN8N Boolean        @default(false)
+
+  // Suporte à Busca Semântica e Clusterização de Reincidência (pgvector 1536 dimensões)
+  embedding      Unsupported("vector(1536)")?
+
+  createdAt      DateTime       @default(now())
+
+  @@index([alunoId])
+  @@index([localId])
+  @@index([data])
+}
+
+model Chamado {
+  id             String         @id @default(uuid())
+  codigoTicket   String         @unique // ex: "TKT-1725750000"
+  alunoId        String?
+  aluno          Aluno?         @relation(fields: [alunoId], references: [id])
+  alunoNome      String
+  turmaCodigo    String
+  destino        String         // "Disciplinar", "Coordenação", "Orientação", "Ir embora", "Diretoria"
+  motivos        String[]
+  rawText        String?
+  
+  status         TicketStatus   @default(RECEBIDO)
+  prioridade     TicketPriority @default(NORMAL)
+
+  criadoPorId    String?
+  criadoPor      User?          @relation("ChamadosCriados", fields: [criadoPorId], references: [id])
+  
+  atendidoPorId  String?
+  atendidoPor    User?          @relation("ChamadosAtendidos", fields: [atendidoPorId], references: [id])
+
+  observacoesFim String?
+  
+  createdAt      DateTime       @default(now())
+  attendedAt     DateTime?
+  closedAt       DateTime?
+  cancelledAt    DateTime?
+
+  @@index([status])
+  @@index([prioridade])
+  @@index([createdAt])
+}
+
+model QuickAction {
+  id             String   @id @default(uuid())
+  label          String   // ex: "Aluno sem blusa", "Liberação Antecipada"
+  template       String   // ex: "Aluno sem blusa encaminhado para secretaria"
+  destinoDefault String   @default("Disciplinar")
+  ordem          Int      @default(0)
+  ativo          Boolean  @default(true)
+}
