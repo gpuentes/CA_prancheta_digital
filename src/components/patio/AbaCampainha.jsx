@@ -89,7 +89,7 @@ export default function AbaCampainha() {
   const styles = useStyles();
   const {
     state, createTicket, acceptTicket, completeTicket, cancelTicket,
-    getTicketSLA, currentUser,
+    getTicketSLA, currentUser, parseSmartPaste,
   } = useAuth();
 
   const [rawText, setRawText] = useState('');
