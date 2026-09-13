@@ -252,6 +252,19 @@ export class AppModel {
             }
           });
         }
+        // Garante sincronização de estudantes: merge dos defaultStudents + extração dos alunos das turmas cadastradas
+        if (!this.state.students || this.state.students.length === 0) {
+          this.state.students = [...this.defaultStudents];
+        } else {
+          const existingStudentKeys = new Set(this.state.students.map(s => `${this.normalizeString(s.firstName)}_${this.normalizeString(s.lastName)}`));
+          this.defaultStudents.forEach(ds => {
+            const key = `${this.normalizeString(ds.firstName)}_${this.normalizeString(ds.lastName)}`;
+            if (!existingStudentKeys.has(key)) {
+              this.state.students.push({ ...ds });
+              existingStudentKeys.add(key);
+            }
+          });
+        }
       } else {
         this.initializeDefaultState();
       }
