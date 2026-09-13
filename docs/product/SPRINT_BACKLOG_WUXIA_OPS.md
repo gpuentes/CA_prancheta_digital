@@ -25,14 +25,25 @@
 
 | ID | Categoria | Descrição da Funcionalidade / Tarefa | Prioridade | Status |
 | :--- | :--- | :--- | :---: | :---: |
-| **SP2-01** | **Massa de Dados** | Inserção/atualização da Lista Oficial de **Salas**, **Turmas** e **Alunos** para os testes | Alta 🔴 | 🔄 Em Aberto |
-| **SP2-02** | **Homologação** | Testar e validar o comportamento do Dashboard e Pátio no site publicado (`prancheta.online.des.br`) | Alta 🔴 | 🔄 Em Aberto |
-| **SP2-03** | **UI / Mobile** | Ajustes de responsividade mobile para uso dos monitores em tablets/smartphones no pátio | Média 🟡 | ⏳ Planejado |
-| **SP2-04** | **Automação** | Integração de eventos/alertas de ocorrências com webhooks / n8n / notificações | Média 🟡 | ⏳ Planejado |
+| **SP2-01** | **Massa de Dados** | Modelagem das salas 20 a 24 (Matriz 6x5, 30 assentos, Ensino Médio) | Alta 🔴 | ✅ Concluído |
+| **SP2-02** | **RBAC / Segurança** | Perfil Terminal por Sala física (Salas 20 a 24) com login simplificado | Alta 🔴 | ✅ Concluído |
+| **SP2-03** | **UX / Terminal** | Auto-seleção da turma ao logar no Terminal da sala + Botão Ocorrência SALA | Alta 🔴 | ✅ Concluído |
+| **SP2-04** | **RBAC / Pátio** | Ocultar aba PRANCHETA para perfil Secretaria e liberar rota Campainha Geral | Alta 🔴 | ✅ Concluído |
+| **SP2-05** | **Homologação** | Testar e validar o comportamento no site publicado (`prancheta.online.des.br`) | Alta 🔴 | 🔄 Em Homologação |
+| **SP2-06** | **UI / Mobile** | Ajustes de responsividade mobile para tablets/smartphones no pátio | Média 🟡 | ⏳ Planejado |
+
+---
+
+## ⚡ Sprint 3 — Automação n8n & Integração Externa (EM ANDAMENTO 🏃‍♂️)
+
+| ID | Categoria | Descrição da Funcionalidade / Tarefa | Prioridade | Status |
+| :--- | :--- | :--- | :---: | :---: |
+| **SP3-01** | **Automação** | Disparo de Webhook n8n para Ocorrências Críticas (Diretoria / Severidade Grave) | Alta 🔴 | 🔄 Em Andamento |
+| **SP3-02** | **Integração Odoo** | Exportação e sincronização de dados de chamados e alunos com Odoo | Média 🟡 | ⏳ Planejado |
 
 ---
 
 ### 📝 Registro de Atualização
-- **Data:** 26/08/2026
+- **Data:** 13/09/2026
 - **Responsável:** Gepto (Senior Unified Agent)
-- **Notas:** Código comitado na branch `feat/patio`, merged na `main` e publicado via GitHub Actions.
+- **Notas:** Implementada auto-injeção de usuários no `localStorage` e atalho de campainha no Mapa de Sala. Commits na branch `feat/mapa-sala`.
