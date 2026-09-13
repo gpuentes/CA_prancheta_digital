@@ -1,14 +1,17 @@
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   makeStyles,
   Title2,
   Text,
   Card,
+  Button,
 } from '@fluentui/react-components';
 import {
   TableRegular,
   ClockRegular,
   PersonRegular,
+  AlertUrgentRegular,
 } from '@fluentui/react-icons';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import ClassroomSelector from '../modules/classroom/ClassroomSelector.jsx';
@@ -92,6 +95,7 @@ const TURNO_LABEL = { MANHA: 'Manhã', TARDE: 'Tarde' };
 
 export default function MapaSala() {
   const styles = useStyles();
+  const navigate = useNavigate();
   const { state } = useAuth();
 
   const turmas = useMemo(() => state.classrooms || [], [state.classrooms]);
@@ -107,6 +111,13 @@ export default function MapaSala() {
   }, [turmas, state.currentUser]);
 
   const [selectedId, setSelectedId] = useState(defaultId);
+
+  // Sincroniza selectedId sempre que o defaultId mudar (ex: ao logar como terminal)
+  React.useEffect(() => {
+    if (defaultId) {
+      setSelectedId(defaultId);
+    }
+  }, [defaultId]);
 
   const turma = useMemo(
     () => turmas.find(t => t.turma_id === selectedId),
@@ -160,6 +171,15 @@ export default function MapaSala() {
             </span>
           </div>
         )}
+
+        <Button
+          appearance="primary"
+          icon={<AlertUrgentRegular />}
+          onClick={() => navigate('/campainha')}
+          style={{ backgroundColor: 'var(--color-brand)', fontWeight: '600' }}
+        >
+          Ocorrência SALA / Campainha
+        </Button>
       </div>
 
       {/* Seletor */}

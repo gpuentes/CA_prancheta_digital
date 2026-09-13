@@ -217,6 +217,17 @@ export class AppModel {
         if (!this.state.rooms || this.state.rooms.length === 0) {
           this.state.rooms = [...this.defaultRooms];
         }
+        // Garante que novos usuários do seed (ex: terminais das salas 20 a 24) existam mesmo se o localStorage já tiver usuários antigos
+        if (!this.state.users || this.state.users.length === 0) {
+          this.state.users = [...this.defaultUsers];
+        } else {
+          const existingLogins = new Set(this.state.users.map(u => u.login));
+          this.defaultUsers.forEach(u => {
+            if (!existingLogins.has(u.login)) {
+              this.state.users.push({ ...u });
+            }
+          });
+        }
         if (!this.state.dashboardWidgets || !this.state.dashboardWidgets.includes('list-monitors')) {
           this.state.dashboardWidgets = ['metric-volumetry', 'chart-hours', 'chart-categories', 'list-recurrent', 'list-monitors'];
         }
